@@ -31,10 +31,9 @@ func (a AuthService) Login(credential domain.Credential) (*domain.Authentication
 
 	jwtData := &domain.JwtData{
 								Username: credential.User,
-								Scope: "escopo 123",
+								Scope: "query-product",
 								RegisteredClaims: jwt.RegisteredClaims{
-									// JWT expiry time is unix milliseconds
-									ExpiresAt: jwt.NewNumericDate(expirationTime),
+								ExpiresAt: jwt.NewNumericDate(expirationTime), 	// JWT expiry time is unix milliseconds
 								},
 	}
 
