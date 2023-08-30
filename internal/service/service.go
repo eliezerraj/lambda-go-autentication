@@ -27,13 +27,15 @@ func NewAuthService(	//cardRepository repository.CardRepository,
 func (a AuthService) Login(credential domain.Credential) (*domain.Authentication, error){
 	childLogger.Debug().Msg("Login")
 
-	expirationTime := time.Now().Add(5 * time.Minute)
+	expirationTime := time.Now().Add(60 * time.Minute)
+
+	user_scope := []string{"info.read","a.read","sum.write"}
 
 	jwtData := &domain.JwtData{
 								Username: credential.User,
-								Scope: "query-product",
+								Scope: user_scope,
 								RegisteredClaims: jwt.RegisteredClaims{
-								ExpiresAt: jwt.NewNumericDate(expirationTime), 	// JWT expiry time is unix milliseconds
+									ExpiresAt: jwt.NewNumericDate(expirationTime), 	// JWT expiry time is unix milliseconds
 								},
 	}
 

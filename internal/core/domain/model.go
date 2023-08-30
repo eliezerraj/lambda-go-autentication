@@ -21,6 +21,6 @@ type Credential struct {
 
 type JwtData struct {
 	Username	string 	`json:"username"`
-	Scope		string 	`json:"scope"`
+	Scope	  []string 	`json:"scope"`
 	jwt.RegisteredClaims
 }
