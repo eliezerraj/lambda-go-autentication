@@ -14,9 +14,20 @@ type Authentication struct {
 }
 
 type Credential struct {
+	ID				string	`json:"id,omitempty"`
+	SK				string	`json:"sk,omitempty"`
 	User			string	`json:"user,omitempty"`
 	Password		string	`json:"password,omitempty"`
-	Token			string `json:"token,omitempty"`
+	Token			string 	`json:"token,omitempty"`
+	Updated_at  	time.Time 	`json:"updated_at,omitempty"`
+}
+
+type CredentialScope struct {
+	ID				string		`json:"id,omitempty"`
+	SK				string		`json:"sk,omitempty"`
+	User			string		`json:"user,omitempty"`
+	Scope			[]string	`json:"scope,omitempty"`
+	Updated_at  	time.Time 	`json:"updated_at,omitempty"`
 }
 
 type JwtData struct {

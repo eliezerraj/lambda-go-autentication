@@ -9,6 +9,7 @@ import(
 
 	"github.com/lambda-go-autentication/internal/service"
 	"github.com/lambda-go-autentication/internal/handler"
+	"github.com/lambda-go-autentication/internal/repository"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -18,6 +19,7 @@ var (
 	logLevel		=	zerolog.DebugLevel // InfoLevel DebugLevel
 	version			=	"1.0"
 	authService		*service.AuthService
+	tableName		= "user_login"
 	jwtKey			= "my_secret_key"
 	authHandler		*handler.AuthHandler
 	response		*events.APIGatewayProxyResponse
@@ -40,6 +42,9 @@ func getEnv() {
 	if os.Getenv("VERSION") !=  "" {
 		version = os.Getenv("VERSION")
 	}
+	if os.Getenv("TABLE_NAME") !=  "" {
+		tablename = os.Getenv("TABLE_NAME")
+	}
 	if os.Getenv("JWT_KEY") !=  "" {
 		jwtKey = os.Getenv("JWT_KEY")
 	}
@@ -54,8 +59,13 @@ func init(){
 func main(){
 	log.Debug().Msg("main - lambda-go-autentication")
 
-	authService = service.NewAuthService([]byte(jwtKey))
+	authRepository, err := repository.NewAuthRepository(tableName)
+	if err != nil {
+		panic("configuration error AuthRepository(), " + err.Error())
+	}
+	authService = service.NewAuthService([]byte(jwtKey), authRepository)
 	authHandler = handler.NewAuthHandler(*authService)
+
 	log.Debug().Msg("Start ... lambdaHandler")
 	lambda.Start(lambdaHandler)
 }
@@ -75,6 +85,8 @@ func lambdaHandler(ctx context.Context, req events.APIGatewayProxyRequest) (*eve
 			response, _ = authHandler.Login(req)
 		}else if (req.Resource == "/tokenValidation") {
 			response, _ = authHandler.TokenValidation(req)
+		}else if (req.Resource == "/signin") {
+			response, _ = authHandler.SignIn(req)
 		}else {
 			response, _ = authHandler.UnhandledMethod()
 		}

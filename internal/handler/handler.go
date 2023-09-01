@@ -69,6 +69,26 @@ func (h *AuthHandler) Login(req events.APIGatewayProxyRequest) (*events.APIGatew
 	return handlerResponse, nil
 }
 
+func (h *AuthHandler) SignIn(req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
+	childLogger.Debug().Msg("SignIn")
+
+	var credential domain.Credential
+    if err := json.Unmarshal([]byte(req.Body), &credential); err != nil {
+        return ApiHandlerResponse(http.StatusBadRequest, MessageBody{ErrorMsg: aws.String(err.Error())})
+    }
+
+	response, err := h.authService.SignIn(credential)
+	if err != nil {
+		return ApiHandlerResponse(http.StatusBadRequest, MessageBody{ErrorMsg: aws.String(err.Error())})
+	}
+
+	handlerResponse, err := ApiHandlerResponse(http.StatusOK, response)
+	if err != nil {
+		return ApiHandlerResponse(http.StatusInternalServerError, MessageBody{ErrorMsg: aws.String(err.Error())})
+	}
+	return handlerResponse, nil
+}
+
 func (h *AuthHandler) TokenValidation(req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
 	childLogger.Debug().Msg("TokenValidation")
 
