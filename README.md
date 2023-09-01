@@ -19,19 +19,35 @@ Lambda mock a login and return a JWT Oath
 
 ## Endpoints
 
++ POST /signIn
+
+      {
+         "user": "007",
+         "password": "MrBeam",
+      }
+
 + POST /login
 
       {
-         "User": "007",
-         "Password": "MrBeam",
+         "user": "007",
+         "password": "MrBeam",
       }
 
-
-+ POST /tokenvalidation
++ POST /tokenValidation
 
       {
-         "Token": "ABC123",
+         "token": "ABC123",
       }
+
++ POST /addScope
+
+      {
+         "user": "user-01",
+         "scope": ["test.read","test.write"]
+      }
+
++ GET /credentialScope/user-01
+
 
 ## Pipeline
 

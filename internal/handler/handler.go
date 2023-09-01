@@ -109,3 +109,44 @@ func (h *AuthHandler) TokenValidation(req events.APIGatewayProxyRequest) (*event
 
 	return handlerResponse, nil
 }
+
+func (h *AuthHandler) QueryCredentialScope(req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
+	childLogger.Debug().Msg("QueryCredentialScope")
+
+	id := req.PathParameters["id"]
+	if len(id) == 0 {
+		return ApiHandlerResponse(http.StatusBadRequest, MessageBody{ErrorMsg: aws.String(erro.ErrQueryEmpty.Error())})
+	}
+
+	credential := domain.Credential{User: id}
+	response, err := h.authService.QueryCredentialScope(credential)
+	if err != nil {
+		return ApiHandlerResponse(http.StatusNotFound, MessageBody{ErrorMsg: aws.String(err.Error())})
+	}
+
+	handlerResponse, err := ApiHandlerResponse(http.StatusOK, response)
+	if err != nil {
+		return ApiHandlerResponse(http.StatusInternalServerError, MessageBody{ErrorMsg: aws.String(err.Error())})
+	}
+	return handlerResponse, nil
+}
+
+func (h *AuthHandler) AddScope(req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
+	childLogger.Debug().Msg("AddScope")
+
+	var credential_scope domain.CredentialScope
+    if err := json.Unmarshal([]byte(req.Body), &credential_scope); err != nil {
+        return ApiHandlerResponse(http.StatusBadRequest, MessageBody{ErrorMsg: aws.String(err.Error())})
+    }
+
+	response, err := h.authService.AddScope(credential_scope)
+	if err != nil {
+		return ApiHandlerResponse(http.StatusBadRequest, MessageBody{ErrorMsg: aws.String(err.Error())})
+	}
+
+	handlerResponse, err := ApiHandlerResponse(http.StatusOK, response)
+	if err != nil {
+		return ApiHandlerResponse(http.StatusInternalServerError, MessageBody{ErrorMsg: aws.String(err.Error())})
+	}
+	return handlerResponse, nil
+}

@@ -34,19 +34,23 @@ func (a AuthService) Login(credential domain.Credential) (*domain.Authentication
 	if err != nil {
 		return nil, err
 	}
-	//childLogger.Debug().Interface(credential_login).Msg("Login")
+
+	// get scopes
+	credential_scope, err := a.authRepository.QueryCredentialScope(credential)
+	if err != nil {
+		return nil, err
+	}
 
 	expirationTime := time.Now().Add(60 * time.Minute)
-
-	user_scope := []string{"info.read",
+	/*user_scope := []string{"info.read",
 							"a.read",
 							"sum.write",
 							"version",
-							"header.read"}
+							"header.read"}*/
 
 	jwtData := &domain.JwtData{
 								Username: credential.User,
-								Scope: user_scope,
+								Scope: credential_scope.Scope,
 								RegisteredClaims: jwt.RegisteredClaims{
 									ExpiresAt: jwt.NewNumericDate(expirationTime), 	// JWT expiry time is unix milliseconds
 								},

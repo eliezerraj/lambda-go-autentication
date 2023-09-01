@@ -43,7 +43,7 @@ func getEnv() {
 		version = os.Getenv("VERSION")
 	}
 	if os.Getenv("TABLE_NAME") !=  "" {
-		tablename = os.Getenv("TABLE_NAME")
+		tableName = os.Getenv("TABLE_NAME")
 	}
 	if os.Getenv("JWT_KEY") !=  "" {
 		jwtKey = os.Getenv("JWT_KEY")
@@ -79,14 +79,20 @@ func lambdaHandler(ctx context.Context, req events.APIGatewayProxyRequest) (*eve
 
 	switch req.HTTPMethod {
 	case "GET":
-		response, _ = authHandler.UnhandledMethod()
+		if (req.Resource == "/credentialScope/{id}"){
+			response, _ = authHandler.QueryCredentialScope(req)
+		}else {
+			response, _ = authHandler.UnhandledMethod()
+		}
 	case "POST":
 		if (req.Resource == "/login"){
 			response, _ = authHandler.Login(req)
 		}else if (req.Resource == "/tokenValidation") {
 			response, _ = authHandler.TokenValidation(req)
-		}else if (req.Resource == "/signin") {
+		}else if (req.Resource == "/signIn") {
 			response, _ = authHandler.SignIn(req)
+		}else if (req.Resource == "/addScope") {
+			response, _ = authHandler.AddScope(req)
 		}else {
 			response, _ = authHandler.UnhandledMethod()
 		}

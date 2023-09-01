@@ -43,12 +43,12 @@ func TestAddScope(t *testing.T) {
 	zerolog.SetGlobalLevel(logLevel)
 
 	t.Setenv("AWS_REGION", "us-east-2")
+
 	scope := []string{"info.read",
 								"a.read",
 								"sum.write",
 								"version",
 								"header.read"}
-
 	credential_scope := domain.CredentialScope{User: "user123", Scope: scope }
 
 	authRepository, err := repository.NewAuthRepository(tableName)

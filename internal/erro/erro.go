@@ -17,4 +17,5 @@ var (
 	ErrNotFound 			= errors.New("Data not found")
 	ErrInsert 				= errors.New("Insert Error")
 	ErrList					= errors.New("List Error")
+	ErrQueryEmpty			= errors.New("Query parameters missing")
 )
