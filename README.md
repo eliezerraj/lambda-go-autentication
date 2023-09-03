@@ -2,7 +2,9 @@
 
 POC Lambda for technical purposes
 
-Lambda mock a login and return a JWT Oath
+Lambda mock a login and return a JWT/Scope Oath
+
+See: lambda-go-auth-apigw (extend example)
 
 ## Compile lambda
 
