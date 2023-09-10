@@ -74,7 +74,7 @@ Parameters:
     Description: Runtime Environment name e.g nodejs, go1.x, python3.9
     Type: String
     ConstraintDescription: must be a valid environment (go1.x)
-    Default: go 1.x
+    Default: go1.x
 
 Conditions:
   IsManagedPolicyParameterOne:    !Not [!Equals [ !Ref ManagedPolicyParameterOne, "" ]]
