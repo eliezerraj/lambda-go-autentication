@@ -20,7 +20,7 @@ Parameters:
     Type: String
     Default: lambda-go-autentication
   OwnerName:
-    Type: 
+    Type: String
     Default: architecture
   ComponentName:
     Type: String
@@ -143,7 +143,7 @@ Resources:
       - Key: business_unit
         Value: !Ref BusinessUnitName
       - Key: platform
-         Value: !Ref PlatformName
+        Value: !Ref PlatformName
       - Key: application
         Value: !Ref ApplicationName
       - Key: component
