@@ -16,7 +16,6 @@ phases:
       - echo PRE_BUILD show enviroment variables ...
       - echo $FUNCTION_NAME
       - echo $BUCKET_NAME
-      - echo $MY_ENV_VAR
       - echo $BUCKET_FOLDER_NAME
       - echo $CODEDEPLOY_APPLICATION_NAME
       - echo $CODEDEPLOY_APPLICATION_GROUP
@@ -26,8 +25,9 @@ phases:
     commands: 
       - echo BUILD update lambda-function...
       - echo aws lambda update-function-code --function-name ${FUNCTION_NAME} --s3-bucket ${BUCKET_NAME} --s3-key ${FUNCTION_NAME}/main.zip
-      - aws lambda update-function-code --function-name ${FUNCTION_NAME} --s3-bucket ${BUCKET_NAME} --s3-key ${FUNCTION_NAME}/main.zip
-  
+      - LAMBDA_NEW_VERSION=$(aws lambda update-function-code --function-name ${FUNCTION_NAME} --s3-bucket ${BUCKET_NAME} --s3-key ${FUNCTION_NAME}/main.zip --publish | jq '.Version')
+      - echo LAMBDA_NEW_VERSION $LAMBDA_NEW_VERSION 
+
   post_build: 
       commands: 
       - echo POST_BUILD setting appspec Function... 
