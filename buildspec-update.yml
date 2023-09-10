@@ -4,7 +4,7 @@ env:
   variables:
     FUNCTION_NAME: lambda-go-autentication
     ALIAS_NAME: lambda-go-autentication-version
-    BUCKET_NAME: account-a-884069944685-codedeploy-artfacts
+    BUCKET_NAME: account-a-884069944685-artifacts
 
 phases:
   pre_build: 
