@@ -25,9 +25,6 @@ Parameters:
   ComponentName:
     Type: String
     Default: lambda
-  PciScopeName:
-    Type: String
-    Default: false
   PciClassificationName:
     Type: String
     Default: non-pci
@@ -40,7 +37,7 @@ Parameters:
     Default: architecture
   PlatformName:
     Type: String
-    Default: dockone
+    Default: product-01
     
   HandlerName:
     Description: Handler Name (go=main, python=index.handler)

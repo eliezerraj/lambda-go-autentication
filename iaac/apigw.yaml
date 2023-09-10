@@ -1,0 +1,119 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: API Gateway
+
+Parameters:
+  Versao:
+    Type: String
+    Default: 0
+  Env:
+    Description: Execution environment
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - hml
+      - prd
+  ServiceName:
+    Description: ApiGw Service Name
+    Type: String
+    Default:  api-name
+  ApplicationName:
+    Type: String
+    Default: lambda-go-autentication
+  OwnerName:
+    Type: String
+    Default: architecture
+  ComponentName:
+    Description: Component Name (TAG)
+    Type: String
+    Default: apigw
+  PciClassificationName:
+    Type: String
+    Default: non-pci
+    AllowedValues:
+      - pci
+      - pci-connected
+      - non-pci
+  BusinessUnitName:
+    Type: String
+    Default: architecture
+  PlatformName:
+    Description: Platform Name (TAG)
+    Type: String
+    Default: plataform-01
+
+Conditions:
+  IsPrd: !Equals 
+    - !Ref Env
+    - prd
+
+Mappings:
+  Throttle:
+    DefaultRate:
+      value: 1000
+    DefaultBurst:
+      value: 1000
+
+Resources:
+  ApiGwAccountConfig:
+    Type: AWS::ApiGateway::Account
+    Properties:
+      CloudWatchRoleArn:
+        Fn::GetAtt:
+        - ApiGatewayLoggingRole
+        - Arn
+  ApiGatewayLoggingRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - apigateway.amazonaws.com
+          Action: sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+      - Fn::Sub: arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs
+  GlobalAPIUsagePlan:
+    Type: AWS::ApiGateway::UsagePlan
+    Properties:
+      UsagePlanName: GlobalAPIUsagePlan
+      Description: UsagePlan to configuration Throttle in ApiGateway.
+      Tags:
+        - Key: env
+          Value: !Ref Env
+        - Key: stack
+          Value: !Sub ${AWS::StackName}         
+        - Key: name
+          Value: !Ref ServiceName
+        - Key: resource
+          Value: api-gateway
+        - Key: business_unit
+          Value: !Ref BusinessUnitName
+        - Key: platform
+          Value: !Ref  PlatformName
+        - Key: application
+          Value: !Ref ApplicationName
+        - Key: component
+          Value: !Ref ComponentName
+        - Key: pci_classification
+          Value: !Ref PciClassificationName
+        - Key: owner
+          Value: !Ref OwnerName
+        - Key: resource
+          Value: usage-plan
+
+      Throttle:
+        BurstLimit:
+          Fn::FindInMap:
+          - Throttle
+          - DefaultRate
+          - value
+        RateLimit:
+          Fn::FindInMap:
+          - Throttle
+          - DefaultBurst
+          - value
