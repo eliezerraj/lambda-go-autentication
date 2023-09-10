@@ -169,7 +169,8 @@ Resources:
   AliasLambda:
     Type: AWS::Lambda::Alias
     Properties:
-      FunctionName: !Ref LambdaFunction
+      FunctionName:
+        Value: !Join [ '-', [!Ref LambdaFunction, '-alias'] ] !Ref LambdaFunction
       FunctionVersion: !GetAtt VersionLambda.Version
       Name: live
 

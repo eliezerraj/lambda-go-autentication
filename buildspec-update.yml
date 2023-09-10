@@ -3,7 +3,7 @@ version: 0.2
 env:
   variables:
     FUNCTION_NAME: lambda-go-autentication
-    ALIAS_NAME: lambda-go-autentication
+    ALIAS_NAME: lambda-go-autentication-alias
     BUCKET_NAME: account-a-884069944685-artifacts
     BUCKET_FOLDER_NAME: lambda-go-autentication
     CODEDEPLOY_APPLICATION_NAME: lambda-go-autentication-deploy
