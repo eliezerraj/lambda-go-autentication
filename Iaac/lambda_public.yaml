@@ -7,6 +7,7 @@ Parameters:
     Default: 0
   Env:
     Type: String
+    Default: dev
     AllowedValues:
       - dev
       - hml
@@ -14,15 +15,19 @@ Parameters:
   FunctionLambdaName:
     Description: Lambda Name
     Type: String
-    Default: lambda-name
+    Default: lambda-go-autentication
   ApplicationName:
     Type: String
+    Default: lambda-go-autentication
   OwnerName:
-    Type: String
+    Type: 
+    Default: architecture
   ComponentName:
     Type: String
+    Default: lambda
   PciScopeName:
     Type: String
+    Default: false
   PciClassificationName:
     Type: String
     Default: non-pci
@@ -32,6 +37,7 @@ Parameters:
       - non-pci
   BusinessUnitName:
     Type: String
+    Default: architecture
   PlatformName:
     Type: String
     Default: dockone
@@ -58,7 +64,7 @@ Parameters:
   ManagedPolicyParameterTwo:
     Description: Inform policy ARN (opcional)
     Type: String 
-    Default: ""
+    Default: arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
   ManagedPolicyParameterThree:
     Description: Inform policy ARN (opcional)
     Type: String 
