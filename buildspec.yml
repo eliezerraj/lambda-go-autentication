@@ -7,7 +7,7 @@ env:
 phases:
   install:
     runtime-versions:
-      golang: 1.21
+      golang: 1.20
     commands:
         # AWS Codebuild Go images use /go for the $GOPATH so copy the src code into that dir structure
       - echo INSTALL installing Go dependencies...
