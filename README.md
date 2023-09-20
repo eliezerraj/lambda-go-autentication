@@ -2,9 +2,19 @@
 
 POC Lambda for technical purposes
 
-Lambda mock a login and return a JWT/Scope Oath
+Lambda mock a login and return a JWT/Scope Oath using a HS256 (symetric key) The JWT token is 60 minutes duration
+
+It saves the credentials and scopes in a DynamoDB table
+
+![Alt text](image.png)
 
 See: lambda-go-auth-apigw (extend example)
+
+## Enviroment variable
+
++ tablename: DynamoDB table
+
++ jwtKey: The KEY used for encrypt Hs256
 
 ## Compile lambda
 
@@ -41,6 +51,12 @@ See: lambda-go-auth-apigw (extend example)
          "token": "ABC123",
       }
 
++ POST /refreshToken
+
+      {
+         "token": "ABC123",
+      }
+
 + POST /addScope
 
       {
@@ -60,3 +76,4 @@ Lambda function already created
 + buildspec.yml: build the main.go and move to S3
 + buildspec-test.yml: make a go test using services_test.go
 + buildspec-update.yml: update the lambda-function using S3 build
++ appspec.yml: blue/gree deploy

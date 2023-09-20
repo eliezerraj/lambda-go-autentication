@@ -25,6 +25,7 @@ var (
 	response		*events.APIGatewayProxyResponse
 )
 
+// Loading ENV variables
 func getEnv() {
 	log.Debug().Msg("getEnv")
 
@@ -59,13 +60,17 @@ func init(){
 func main(){
 	log.Debug().Msg("main - lambda-go-autentication")
 
+	// Create a repository
 	authRepository, err := repository.NewAuthRepository(tableName)
 	if err != nil {
 		panic("configuration error AuthRepository(), " + err.Error())
 	}
+	// Create a authorization service and inject the repository
 	authService = service.NewAuthService([]byte(jwtKey), authRepository)
+	// Create a handler and inject the service
 	authHandler = handler.NewAuthHandler(*authService)
 
+	// Start lambda handler
 	log.Debug().Msg("Start ... lambdaHandler")
 	lambda.Start(lambdaHandler)
 }
@@ -77,22 +82,25 @@ func lambdaHandler(ctx context.Context, req events.APIGatewayProxyRequest) (*eve
 				Msg("APIGateway Request.Body")
 	log.Debug().Msg("--------------------")
 
+	// Check the http method and path
 	switch req.HTTPMethod {
 	case "GET":
-		if (req.Resource == "/credentialScope/{id}"){
-			response, _ = authHandler.QueryCredentialScope(req)
+		if (req.Resource == "/credentialScope/{id}"){  
+			response, _ = authHandler.QueryCredentialScope(req) // Query the scopes associated with credential
 		}else {
 			response, _ = authHandler.UnhandledMethod()
 		}
 	case "POST":
-		if (req.Resource == "/login"){
-			response, _ = authHandler.Login(req)
+		if (req.Resource == "/login"){  
+			response, _ = authHandler.Login(req) // Login
+		}else if (req.Resource == "/refreshToken") {
+			response, _ = authHandler.RefreshToken(req) // Refresh Token
 		}else if (req.Resource == "/tokenValidation") {
-			response, _ = authHandler.TokenValidation(req)
+			response, _ = authHandler.TokenValidation(req) // Do a JWT validation (signature and expiration date)
 		}else if (req.Resource == "/signIn") {
-			response, _ = authHandler.SignIn(req)
+			response, _ = authHandler.SignIn(req) // Create a new credentials
 		}else if (req.Resource == "/addScope") {
-			response, _ = authHandler.AddScope(req)
+			response, _ = authHandler.AddScope(req) // Add scopes to the credential
 		}else {
 			response, _ = authHandler.UnhandledMethod()
 		}

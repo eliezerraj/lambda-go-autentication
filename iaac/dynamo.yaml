@@ -7,26 +7,29 @@ Parameters:
     Default: 0
   Env:
     Type: String
+    Default: dev
     AllowedValues:
       - dev
       - hml
       - prd
   DynamoDBTableName:
     Type: String
-    Default: my-architecture-table
+    Default: my-table
   BusinessUnitName:
     Type: String
+    Default: architecture
   PlatformName:
     Type: String
-    Default: dockone
+    Default: architecture
   ApplicationName:
     Type: String
+    Default: my-app
   OwnerName:
     Type: String
+    Default: architecture
   ComponentName:
     Type: String
-  PciScopeName:
-    Type: String
+    Default: architecture
   PciClassificationName:
     Type: String
     Default: non-pci

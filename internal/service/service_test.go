@@ -2,9 +2,11 @@ package service
 
 import (
 	"testing"
+	"errors"
 	"github.com/rs/zerolog"
 
 	"github.com/lambda-go-autentication/internal/core/domain"
+	"github.com/lambda-go-autentication/internal/erro"
 	"github.com/lambda-go-autentication/internal/repository"
 
 )
@@ -147,5 +149,37 @@ func TestTokenValidation(t *testing.T) {
 		t.Errorf("Failed - TestTokenValidation isValid %v ", isValid)
 	} else {
 		t.Logf("Success TestTokenValidation")
+	}
+}
+
+func TestRefreshToken(t *testing.T) {
+	zerolog.SetGlobalLevel(logLevel)
+
+	t.Setenv("AWS_REGION", "us-east-2")
+	credential := domain.Credential{User: "user123", Password: "pass123" }
+	
+	authRepository, err := repository.NewAuthRepository(tableName)
+	if err != nil {
+		t.Errorf("configuration error AuthRepository() %v ",err.Error())
+	}
+
+	authService = NewAuthService([]byte(jwtKey), authRepository)
+	res, err := authService.Login(credential)
+	if err != nil {
+		t.Errorf("Error -TestRefreshToken Erro %v ", err)
+	}
+	if (res != nil) {
+		t.Logf("Success TestRefreshToken/TestLogin")
+	} else {
+		t.Errorf("Failed TestRefreshToken/TestLogin")
+	}
+
+	credential.Token = res.Token
+
+	_, err = authService.RefreshToken(credential)
+	if errors.Is(err, erro.ErrTokenStillValid) {
+		t.Logf("Success TestRefreshToken %err ", err)
+	} else {
+		t.Errorf("Error - TestRefreshToken Erro %v ", err)
 	}
 }

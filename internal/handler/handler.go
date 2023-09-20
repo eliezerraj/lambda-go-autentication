@@ -110,6 +110,27 @@ func (h *AuthHandler) TokenValidation(req events.APIGatewayProxyRequest) (*event
 	return handlerResponse, nil
 }
 
+func (h *AuthHandler) RefreshToken(req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
+	childLogger.Debug().Msg("RefreshToken")
+
+	var token domain.Credential
+    if err := json.Unmarshal([]byte(req.Body), &token); err != nil {
+        return ApiHandlerResponse(http.StatusBadRequest, MessageBody{ErrorMsg: aws.String(err.Error())})
+    }
+
+	response, err := h.authService.RefreshToken(token)
+	if err != nil {
+		return ApiHandlerResponse(http.StatusUnauthorized, MessageBody{ErrorMsg: aws.String(err.Error())})
+	}
+
+	handlerResponse, err := ApiHandlerResponse(http.StatusOK, response)
+	if err != nil {
+		return ApiHandlerResponse(http.StatusInternalServerError, MessageBody{ErrorMsg: aws.String(err.Error())})
+	}
+
+	return handlerResponse, nil
+}
+
 func (h *AuthHandler) QueryCredentialScope(req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
 	childLogger.Debug().Msg("QueryCredentialScope")
 

@@ -35,19 +35,16 @@ func (a AuthService) Login(credential domain.Credential) (*domain.Authentication
 		return nil, err
 	}
 
-	// get scopes
+	// get scopes associated with a credential
 	credential_scope, err := a.authRepository.QueryCredentialScope(credential)
 	if err != nil {
 		return nil, err
 	}
 
+	// Set a JWT expiration date 
 	expirationTime := time.Now().Add(60 * time.Minute)
-	/*user_scope := []string{"info.read",
-							"a.read",
-							"sum.write",
-							"version",
-							"header.read"}*/
 
+	// Create a JWT Oauth 2.0 with all scopes and expiration date
 	jwtData := &domain.JwtData{
 								Username: credential.User,
 								Scope: credential_scope.Scope,
@@ -56,6 +53,7 @@ func (a AuthService) Login(credential domain.Credential) (*domain.Authentication
 								},
 	}
 
+	// Add the claims and sign the token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwtData)
 	tokenString, err := token.SignedString(a.jwtKey)
 	if err != nil {
@@ -71,6 +69,7 @@ func (a AuthService) Login(credential domain.Credential) (*domain.Authentication
 func (a AuthService) SignIn(credential domain.Credential) (*domain.Credential, error){
 	childLogger.Debug().Msg("SignIn")
 
+	// Create a new credential
 	_, err := a.authRepository.SignIn(credential)
 	if err != nil {
 		return nil, err
@@ -81,6 +80,7 @@ func (a AuthService) SignIn(credential domain.Credential) (*domain.Credential, e
 func (a AuthService) TokenValidation(credential domain.Credential) (bool, error){
 	childLogger.Debug().Msg("TokenValidation")
 
+	// Check with token is signed 
 	claims := &domain.JwtData{}
 	tkn, err := jwt.ParseWithClaims(credential.Token, claims, func(token *jwt.Token) (interface{}, error) {
 		return a.jwtKey, nil
@@ -103,6 +103,7 @@ func (a AuthService) TokenValidation(credential domain.Credential) (bool, error)
 func (a AuthService) AddScope(credential_scope domain.CredentialScope) (*domain.CredentialScope, error){
 	childLogger.Debug().Msg("AddScope")
 
+	// Save the credentials scopes
 	_, err := a.authRepository.AddScope(credential_scope)
 	if err != nil {
 		return nil, err
@@ -114,10 +115,48 @@ func (a AuthService) AddScope(credential_scope domain.CredentialScope) (*domain.
 func (a AuthService) QueryCredentialScope(credential domain.Credential) (*domain.CredentialScope, error){
 	childLogger.Debug().Msg("QueryCredentialScope")
 
+	// Query all scope linked with the credentials
 	credential_scope, err := a.authRepository.QueryCredentialScope(credential)
 	if err != nil {
 		return nil, err
 	}
 
 	return credential_scope, nil
+}
+
+func (a AuthService) RefreshToken(credential domain.Credential) (*domain.Authentication, error){
+	childLogger.Debug().Msg("RefreshToken")
+
+	// Check with token is signed 
+	claims := &domain.JwtData{}
+	tkn, err := jwt.ParseWithClaims(credential.Token, claims, func(token *jwt.Token) (interface{}, error) {
+		return a.jwtKey, nil
+	})
+
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			return nil, erro.ErrStatusUnauthorized
+		}
+		return nil, erro.ErrTokenExpired
+	}
+
+	if !tkn.Valid {
+		return nil, erro.ErrStatusUnauthorized
+	}
+
+	// Check if the token is still valid
+	if time.Until(claims.ExpiresAt.Time) > (50 * time.Minute) {
+		return nil, erro.ErrTokenStillValid
+	}
+
+	// Set a new tokens claims
+	expirationTime := time.Now().Add(60 * time.Minute)
+	claims.ExpiresAt = jwt.NewNumericDate(expirationTime)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString(a.jwtKey)
+
+	auth := domain.Authentication{	Token: tokenString, 
+									ExpirationTime :expirationTime}
+
+	return &auth,nil
 }

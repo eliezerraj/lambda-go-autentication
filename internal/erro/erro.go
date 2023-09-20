@@ -18,4 +18,5 @@ var (
 	ErrInsert 				= errors.New("Insert Error")
 	ErrList					= errors.New("List Error")
 	ErrQueryEmpty			= errors.New("Query parameters missing")
+	ErrTokenStillValid		= errors.New("Token is still valid")
 )
