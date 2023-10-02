@@ -14,7 +14,7 @@ import (
 var (
 	logLevel		=zerolog.DebugLevel // InfoLevel DebugLevel
 	authService		*AuthService
-	tableName		= "user_login"
+	tableName		= "user-login"
 	jwtKey			= "my_secret_key"
 )
 

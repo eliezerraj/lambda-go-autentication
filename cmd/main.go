@@ -13,16 +13,22 @@ import(
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/ssm"
 )
 
 var (
 	logLevel		=	zerolog.DebugLevel // InfoLevel DebugLevel
 	version			=	"1.0"
 	authService		*service.AuthService
-	tableName		= "user_login"
-	jwtKey			= "my_secret_key"
+	tableName		=	"user_login"
+	jwtKey			=	"my_secret_key"
+	ssmJwtKwy		=	"key-secret"
 	authHandler		*handler.AuthHandler
 	response		*events.APIGatewayProxyResponse
+	region			=	"us-east-2"
 )
 
 // Loading ENV variables
@@ -49,6 +55,9 @@ func getEnv() {
 	if os.Getenv("JWT_KEY") !=  "" {
 		jwtKey = os.Getenv("JWT_KEY")
 	}
+	if os.Getenv("AWS_REGION") !=  "" {
+		region = os.Getenv("AWS_REGION")
+	}
 }
 
 func init(){
@@ -60,6 +69,23 @@ func init(){
 func main(){
 	log.Debug().Msg("main - lambda-go-autentication")
 
+	// Get Parameter-Store
+	awsConfig := &aws.Config{Region: aws.String(region)}
+	awsSession, err := session.NewSession(awsConfig)
+	if err != nil {
+		panic("configuration error create new aws session " + err.Error())
+	}
+		
+	ssmsvc := ssm.New(awsSession, awsConfig)
+	param, err := ssmsvc.GetParameter(&ssm.GetParameterInput{
+		Name:           aws.String(ssmJwtKwy),
+		WithDecryption: aws.Bool(false),
+	})
+	if err != nil {
+		panic("configuration error get parameter " + err.Error())
+	}
+	jwtKey = *param.Parameter.Value
+		
 	// Create a repository
 	authRepository, err := repository.NewAuthRepository(tableName)
 	if err != nil {
