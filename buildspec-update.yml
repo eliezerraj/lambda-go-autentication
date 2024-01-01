@@ -5,7 +5,7 @@ env:
     FUNCTION_NAME: lambda-go-autentication
     ALIAS_NAME: live
     BUCKET_NAME: eliezerraj-908671954593-artifacts
-    BUCKET_FOLDER_NAME: lambda-go-autentication
+    BUCKET_FOLDER_NAME: lambda-go-authentication
     CODEDEPLOY_APPLICATION_NAME: lambda-go-autentication-deploy
     CODEDEPLOY_APPLICATION_GROUP: lambda-go-autentication-deploy-group
     REGION_DEPLOYMENT: us-east-2
