@@ -4,7 +4,7 @@ env:
   variables:
     FUNCTION_NAME: lambda-go-autentication
     ALIAS_NAME: live
-    BUCKET_NAME: account-a-884069944685-artifacts
+    BUCKET_NAME: eliezerraj-908671954593-artifacts
     BUCKET_FOLDER_NAME: lambda-go-autentication
     CODEDEPLOY_APPLICATION_NAME: lambda-go-autentication-deploy
     CODEDEPLOY_APPLICATION_GROUP: lambda-go-autentication-deploy-group

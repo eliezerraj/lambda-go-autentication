@@ -66,6 +66,16 @@ See: lambda-go-auth-apigw (extend example)
 
 + GET /credentialScope/user-01
 
+      {
+         "id": "USER-user-02",
+         "sk": "SCOPE-001",
+         "scope": [
+            "header.read",
+            "version.read",
+            "info.read"
+         ],
+         "updated_at": "2023-09-11T01:29:54.7366791Z"
+      }
 
 ## Pipeline
 

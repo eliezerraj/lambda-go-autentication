@@ -21,7 +21,7 @@ import(
 
 var (
 	logLevel		=	zerolog.DebugLevel // InfoLevel DebugLevel
-	version			=	"1.0"
+	version			=	"lambda-go-autentication v2.0"
 	authService		*service.AuthService
 	tableName		=	"user_login"
 	jwtKey			=	"my_secret_key"
@@ -113,6 +113,8 @@ func lambdaHandler(ctx context.Context, req events.APIGatewayProxyRequest) (*eve
 	case "GET":
 		if (req.Resource == "/credentialScope/{id}"){  
 			response, _ = authHandler.QueryCredentialScope(req) // Query the scopes associated with credential
+		}else if (req.Resource == "/info"){
+			response, _ = authHandler.GetInfo(version)
 		}else {
 			response, _ = authHandler.UnhandledMethod()
 		}

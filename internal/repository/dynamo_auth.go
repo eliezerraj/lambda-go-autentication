@@ -29,7 +29,7 @@ func (r *AuthRepository) Login(user_credential domain.Credential) (*domain.Crede
 							WithKeyCondition(keyCond).
 							Build()
 	if err != nil {
-		childLogger.Error().Err(err).Msg("error message")
+		childLogger.Error().Err(err).Msg("error NewBuilder")
 		return nil, erro.ErrPreparedQuery
 	}
 
@@ -42,14 +42,14 @@ func (r *AuthRepository) Login(user_credential domain.Credential) (*domain.Crede
 
 	result, err := r.client.Query(key)
 	if err != nil {
-		childLogger.Error().Err(err).Msg("error message")
+		childLogger.Error().Err(err).Msg("error Query")
 		return nil, erro.ErrQuery
 	}
 
 	credential := []domain.Credential{}
 	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &credential)
     if err != nil {
-		childLogger.Error().Err(err).Msg("error message")
+		childLogger.Error().Err(err).Msg("error UnmarshalListOfMaps")
 		return nil, erro.ErrUnmarshal
     }
 
@@ -69,7 +69,7 @@ func (r *AuthRepository) SignIn(user_credential domain.Credential) (*domain.Cred
 
 	item, err := dynamodbattribute.MarshalMap(user_credential)
 	if err != nil {
-		childLogger.Error().Err(err).Msg("error message")
+		childLogger.Error().Err(err).Msg("erro MarshalMap")
 		return nil, erro.ErrUnmarshal
 	}
 
@@ -81,13 +81,13 @@ func (r *AuthRepository) SignIn(user_credential domain.Credential) (*domain.Cred
 
 	transaction := &dynamodb.TransactWriteItemsInput{TransactItems: transactItems}
 	if err := transaction.Validate(); err != nil {
-		childLogger.Error().Err(err).Msg("error message")
+		childLogger.Error().Err(err).Msg("error TransactWriteItemsInput")
 		return nil, erro.ErrInsert
 	}
 
 	_, err = r.client.TransactWriteItems(transaction)
 	if err != nil {
-		childLogger.Error().Err(err).Msg("error message")
+		childLogger.Error().Err(err).Msg("error TransactWriteItems")
 		return nil, erro.ErrInsert
 	}
 
@@ -103,7 +103,7 @@ func (r *AuthRepository) AddScope(credential_scope domain.CredentialScope) (*dom
 
 	item, err := dynamodbattribute.MarshalMap(credential_scope)
 	if err != nil {
-		childLogger.Error().Err(err).Msg("error message")
+		childLogger.Error().Err(err).Msg("error MarshalMap")
 		return nil, erro.ErrUnmarshal
 	}
 
@@ -115,13 +115,13 @@ func (r *AuthRepository) AddScope(credential_scope domain.CredentialScope) (*dom
 
 	transaction := &dynamodb.TransactWriteItemsInput{TransactItems: transactItems}
 	if err := transaction.Validate(); err != nil {
-		childLogger.Error().Err(err).Msg("error message")
+		childLogger.Error().Err(err).Msg("error TransactWriteItemsInput")
 		return nil, erro.ErrInsert
 	}
 
 	_, err = r.client.TransactWriteItems(transaction)
 	if err != nil {
-		childLogger.Error().Err(err).Msg("error message")
+		childLogger.Error().Err(err).Msg("error TransactWriteItems")
 		return nil, erro.ErrInsert
 	}
 
@@ -156,14 +156,14 @@ func (r *AuthRepository) QueryCredentialScope(user_credential domain.Credential)
 
 	result, err := r.client.Query(key)
 	if err != nil {
-		childLogger.Error().Err(err).Msg("error message")
+		childLogger.Error().Err(err).Msg("error Query")
 		return nil, erro.ErrList
 	}
 
 	credential_scope_temp := []domain.CredentialScope{}
 	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &credential_scope_temp)
     if err != nil {
-		childLogger.Error().Err(err).Msg("error message")
+		childLogger.Error().Err(err).Msg("error UnmarshalListOfMaps")
 		return nil, erro.ErrUnmarshal
     }
 

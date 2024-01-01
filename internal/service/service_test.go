@@ -14,8 +14,8 @@ import (
 var (
 	logLevel		=zerolog.DebugLevel // InfoLevel DebugLevel
 	authService		*AuthService
-	tableName		= "user-login"
-	jwtKey			= "my_secret_key"
+	tableName		= "user_login"
+	jwtKey			= "key-secret"
 )
 
 func TestSignIn(t *testing.T) {

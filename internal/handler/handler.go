@@ -171,3 +171,15 @@ func (h *AuthHandler) AddScope(req events.APIGatewayProxyRequest) (*events.APIGa
 	}
 	return handlerResponse, nil
 }
+
+func (h *AuthHandler) GetInfo(version string) (*events.APIGatewayProxyResponse, error) {
+	childLogger.Debug().Msg("GetInfo")
+
+	response := MessageBody { Msg: &version }
+	handlerResponse, err := ApiHandlerResponse(http.StatusOK, response)
+	if err != nil {
+		return ApiHandlerResponse(http.StatusInternalServerError, MessageBody{ErrorMsg: aws.String(err.Error())})
+	}
+
+	return handlerResponse, nil
+}

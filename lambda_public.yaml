@@ -49,7 +49,7 @@ Parameters:
     Default: 3
   S3BucketParam:
     Type: String 
-    Default: account-a-884069944685-artifacts
+    Default: credit-a-884069944685-artifacts
   S3KeyParam:
     Type: String 
     Default: lambda-go-autentication/main.zip
