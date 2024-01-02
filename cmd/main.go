@@ -112,7 +112,7 @@ func lambdaHandler(ctx context.Context, req events.APIGatewayProxyRequest) (*eve
 				Msg("APIGateway Request.Body")
 	log.Debug().Msg("--------------------")
 
-	ctxXray, root := xray.BeginSegment(ctx, "go-lambda-autentication")
+	ctx, root := xray.BeginSegment(ctx, "go-lambda-autentication")
 	defer root.Close(nil)
 
 	// Check the http method and path
@@ -127,7 +127,7 @@ func lambdaHandler(ctx context.Context, req events.APIGatewayProxyRequest) (*eve
 		}
 	case "POST":
 		if (req.Resource == "/login"){  
-			response, _ = authHandler.Login(ctxXray, req) // Login
+			response, _ = authHandler.Login(ctx, req) // Login
 		}else if (req.Resource == "/refreshToken") {
 			response, _ = authHandler.RefreshToken(req) // Refresh Token
 		}else if (req.Resource == "/tokenValidation") {

@@ -12,12 +12,10 @@ import(
 	"github.com/lambda-go-autentication/internal/erro"
 	"github.com/lambda-go-autentication/internal/core/domain"
 
-	"golang.org/x/net/context/ctxhttp"
 	"github.com/aws/aws-xray-sdk-go/xray"
 )
 
 var childLogger = log.With().Str("handler", "AuthHandler").Logger()
-var DefaultHTTPGetAddress = "https://checkip.amazonaws.com"
 
 type AuthHandler struct {
 	authService service.AuthService
@@ -57,10 +55,8 @@ func (h *AuthHandler) UnhandledMethod() (*events.APIGatewayProxyResponse, error)
 func (h *AuthHandler) Login(ctx context.Context, req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
 	childLogger.Debug().Msg("Login")
 
-	_, err := ctxhttp.Get(ctx, xray.Client(nil), DefaultHTTPGetAddress)
-	if err != nil {
-		return ApiHandlerResponse(http.StatusBadRequest, MessageBody{ErrorMsg: aws.String(err.Error())})
-	}
+	_, root := xray.BeginSubsegment(ctx, "Handler.Login")
+	defer root.Close(nil)
 
 	var credential domain.Credential
     if err := json.Unmarshal([]byte(req.Body), &credential); err != nil {
