@@ -133,7 +133,7 @@ func (r *AuthRepository) AddScope(credential_scope domain.CredentialScope) (*dom
 
 func (r *AuthRepository) QueryCredentialScope(ctx context.Context, user_credential domain.Credential) (*domain.CredentialScope, error){
 	childLogger.Debug().Msg("QueryCredentialScope")
-	
+
 	_, root := xray.BeginSubsegment(ctx, "Repository.QueryCredentialScope")
 	defer root.Close(nil)
 
@@ -160,7 +160,7 @@ func (r *AuthRepository) QueryCredentialScope(ctx context.Context, user_credenti
 								KeyConditionExpression:    expr.KeyCondition(),
 							}
 
-	result, err := r.client.Query(key)
+	result, err := r.client.QueryWithContext(ctx, key)
 	if err != nil {
 		childLogger.Error().Err(err).Msg("error Query")
 		return nil, erro.ErrList
