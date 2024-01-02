@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"github.com/rs/zerolog/log"
 	"time"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/lambda-go-autentication/internal/repository"
 
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/aws/aws-xray-sdk-go/xray"
 )
 
 var childLogger = log.With().Str("service", "AuthService").Logger()
@@ -27,8 +29,11 @@ func NewAuthService(jwtKey []byte,
 	}
 }
 
-func (a AuthService) Login(credential domain.Credential) (*domain.Authentication, error){
+func (a AuthService) Login(ctx context.Context, credential domain.Credential) (*domain.Authentication, error){
 	childLogger.Debug().Msg("Login")
+
+	_, root := xray.BeginSubsegment(ctx, "Service.Login")
+	defer root.Close(nil)
 
 	_, err := a.authRepository.Login(credential)
 	if err != nil {

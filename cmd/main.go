@@ -17,6 +17,8 @@ import(
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ssm"
+
+	"github.com/aws/aws-xray-sdk-go/xray"
 )
 
 var (
@@ -69,8 +71,10 @@ func init(){
 func main(){
 	log.Debug().Msg("main - lambda-go-autentication")
 
-	// Get Parameter-Store
+	// set config
 	awsConfig := &aws.Config{Region: aws.String(region)}
+
+	// Get Parameter-Store
 	awsSession, err := session.NewSession(awsConfig)
 	if err != nil {
 		panic("configuration error create new aws session " + err.Error())
@@ -108,6 +112,9 @@ func lambdaHandler(ctx context.Context, req events.APIGatewayProxyRequest) (*eve
 				Msg("APIGateway Request.Body")
 	log.Debug().Msg("--------------------")
 
+	ctxXray, root := xray.BeginSegment(ctx, "go-lambda-autentication")
+	defer root.Close(nil)
+
 	// Check the http method and path
 	switch req.HTTPMethod {
 	case "GET":
@@ -120,7 +127,7 @@ func lambdaHandler(ctx context.Context, req events.APIGatewayProxyRequest) (*eve
 		}
 	case "POST":
 		if (req.Resource == "/login"){  
-			response, _ = authHandler.Login(req) // Login
+			response, _ = authHandler.Login(ctxXray, req) // Login
 		}else if (req.Resource == "/refreshToken") {
 			response, _ = authHandler.RefreshToken(req) // Refresh Token
 		}else if (req.Resource == "/tokenValidation") {
