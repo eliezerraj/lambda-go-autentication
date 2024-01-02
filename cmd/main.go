@@ -18,7 +18,6 @@ import(
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ssm"
 
-	"github.com/aws/aws-xray-sdk-go/xray"
 )
 
 var (
@@ -111,9 +110,6 @@ func lambdaHandler(ctx context.Context, req events.APIGatewayProxyRequest) (*eve
 	log.Debug().Str("req.Body", req.Body).
 				Msg("APIGateway Request.Body")
 	log.Debug().Msg("--------------------")
-
-	ctx, root := xray.BeginSegment(ctx, "go-lambda-autentication")
-	defer root.Close(nil)
 
 	// Check the http method and path
 	switch req.HTTPMethod {
