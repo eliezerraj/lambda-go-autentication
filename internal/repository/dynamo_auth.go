@@ -3,6 +3,7 @@ package repository
 import(
 	"time"
 	"fmt"
+	"context"
 
 	"github.com/lambda-go-autentication/internal/core/domain"
 	"github.com/lambda-go-autentication/internal/erro"
@@ -10,14 +11,17 @@ import(
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-xray-sdk-go/xray"
 
 )
 
-func (r *AuthRepository) Login(user_credential domain.Credential) (*domain.Credential, error){
+func (r *AuthRepository) Login(ctx context.Context, user_credential domain.Credential) (*domain.Credential, error){
 	childLogger.Debug().Msg("Login")
 
-	var keyCond expression.KeyConditionBuilder
+	_, root := xray.BeginSubsegment(ctx, "Repository.Login")
+	defer root.Close(nil)
 
+	var keyCond expression.KeyConditionBuilder
 	id := "USER-" + user_credential.User
 
 	keyCond = expression.KeyAnd(
@@ -33,14 +37,13 @@ func (r *AuthRepository) Login(user_credential domain.Credential) (*domain.Crede
 		return nil, erro.ErrPreparedQuery
 	}
 
-	key := &dynamodb.QueryInput{
-								TableName:                 r.tableName,
-								ExpressionAttributeNames:  expr.Names(),
-								ExpressionAttributeValues: expr.Values(),
-								KeyConditionExpression:    expr.KeyCondition(),
+	key := &dynamodb.QueryInput{	TableName:                 r.tableName,
+									ExpressionAttributeNames:  expr.Names(),
+									ExpressionAttributeValues: expr.Values(),
+									KeyConditionExpression:    expr.KeyCondition(),
 	}
 
-	result, err := r.client.Query(key)
+	result, err := r.client.QueryWithContext(ctx, key)
 	if err != nil {
 		childLogger.Error().Err(err).Msg("error Query")
 		return nil, erro.ErrQuery
@@ -128,8 +131,11 @@ func (r *AuthRepository) AddScope(credential_scope domain.CredentialScope) (*dom
 	return &credential_scope , nil
 }
 
-func (r *AuthRepository) QueryCredentialScope(user_credential domain.Credential) (*domain.CredentialScope, error){
+func (r *AuthRepository) QueryCredentialScope(ctx context.Context, user_credential domain.Credential) (*domain.CredentialScope, error){
 	childLogger.Debug().Msg("QueryCredentialScope")
+	
+	_, root := xray.BeginSubsegment(ctx, "Repository.QueryCredentialScope")
+	defer root.Close(nil)
 
 	var keyCond expression.KeyConditionBuilder
 

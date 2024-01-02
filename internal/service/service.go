@@ -35,13 +35,13 @@ func (a AuthService) Login(ctx context.Context, credential domain.Credential) (*
 	_, root := xray.BeginSubsegment(ctx, "Service.Login")
 	defer root.Close(nil)
 
-	_, err := a.authRepository.Login(credential)
+	_, err := a.authRepository.Login(ctx, credential)
 	if err != nil {
 		return nil, err
 	}
 
 	// get scopes associated with a credential
-	credential_scope, err := a.authRepository.QueryCredentialScope(credential)
+	credential_scope, err := a.authRepository.QueryCredentialScope(ctx, credential)
 	if err != nil {
 		return nil, err
 	}
@@ -117,11 +117,14 @@ func (a AuthService) AddScope(credential_scope domain.CredentialScope) (*domain.
 	return &credential_scope, nil
 }
 
-func (a AuthService) QueryCredentialScope(credential domain.Credential) (*domain.CredentialScope, error){
+func (a AuthService) QueryCredentialScope(ctx context.Context, credential domain.Credential) (*domain.CredentialScope, error){
 	childLogger.Debug().Msg("QueryCredentialScope")
 
+	_, root := xray.BeginSubsegment(ctx, "Service.QueryCredentialScope")
+	defer root.Close(nil)
+
 	// Query all scope linked with the credentials
-	credential_scope, err := a.authRepository.QueryCredentialScope(credential)
+	credential_scope, err := a.authRepository.QueryCredentialScope(ctx, credential)
 	if err != nil {
 		return nil, err
 	}

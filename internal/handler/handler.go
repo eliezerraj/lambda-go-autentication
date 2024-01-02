@@ -137,7 +137,7 @@ func (h *AuthHandler) RefreshToken(req events.APIGatewayProxyRequest) (*events.A
 	return handlerResponse, nil
 }
 
-func (h *AuthHandler) QueryCredentialScope(req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
+func (h *AuthHandler) QueryCredentialScope(ctx context.Context, req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
 	childLogger.Debug().Msg("QueryCredentialScope")
 
 	id := req.PathParameters["id"]
@@ -146,7 +146,7 @@ func (h *AuthHandler) QueryCredentialScope(req events.APIGatewayProxyRequest) (*
 	}
 
 	credential := domain.Credential{User: id}
-	response, err := h.authService.QueryCredentialScope(credential)
+	response, err := h.authService.QueryCredentialScope(ctx , credential)
 	if err != nil {
 		return ApiHandlerResponse(http.StatusNotFound, MessageBody{ErrorMsg: aws.String(err.Error())})
 	}

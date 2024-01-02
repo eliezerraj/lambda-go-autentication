@@ -115,7 +115,7 @@ func lambdaHandler(ctx context.Context, req events.APIGatewayProxyRequest) (*eve
 	switch req.HTTPMethod {
 	case "GET":
 		if (req.Resource == "/credentialScope/{id}"){  
-			response, _ = authHandler.QueryCredentialScope(req) // Query the scopes associated with credential
+			response, _ = authHandler.QueryCredentialScope(ctx, req) // Query the scopes associated with credential
 		}else if (req.Resource == "/info"){
 			response, _ = authHandler.GetInfo(version)
 		}else {
