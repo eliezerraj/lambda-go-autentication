@@ -3,6 +3,7 @@ package service
 import (
 	"testing"
 	"errors"
+	"context"
 	"github.com/rs/zerolog"
 
 	"github.com/lambda-go-autentication/internal/core/domain"
@@ -15,7 +16,7 @@ var (
 	logLevel		=zerolog.DebugLevel // InfoLevel DebugLevel
 	authService		*AuthService
 	tableName		= "user_login"
-	jwtKey			= "key-secret"
+	jwtKey			= "my_secret_key"
 )
 
 func TestSignIn(t *testing.T) {
@@ -83,7 +84,7 @@ func TestQueryCredentialScope(t *testing.T) {
 	}
 
 	authService = NewAuthService([]byte(jwtKey), authRepository)
-	res, err := authService.QueryCredentialScope(credential)
+	res, err := authService.QueryCredentialScope(context.TODO(),credential)
 	if err != nil {
 		t.Errorf("Error -TestQueryCredentialScope Erro %v ", err)
 	}
@@ -106,7 +107,7 @@ func TestLogin(t *testing.T) {
 	}
 
 	authService = NewAuthService([]byte(jwtKey), authRepository)
-	res, err := authService.Login(credential)
+	res, err := authService.Login(context.TODO(),credential)
 	if err != nil {
 		t.Errorf("Error -TestLogin Erro %v ", err)
 	}
@@ -129,7 +130,7 @@ func TestTokenValidation(t *testing.T) {
 	}
 
 	authService = NewAuthService([]byte(jwtKey), authRepository)
-	res, err := authService.Login(credential)
+	res, err := authService.Login(context.TODO(),credential)
 	if err != nil {
 		t.Errorf("Error -TestTokenValidation Erro %v ", err)
 	}
@@ -164,7 +165,7 @@ func TestRefreshToken(t *testing.T) {
 	}
 
 	authService = NewAuthService([]byte(jwtKey), authRepository)
-	res, err := authService.Login(credential)
+	res, err := authService.Login(context.TODO(),credential)
 	if err != nil {
 		t.Errorf("Error -TestRefreshToken Erro %v ", err)
 	}

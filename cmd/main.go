@@ -88,7 +88,10 @@ func main(){
 		panic("configuration error get parameter " + err.Error())
 	}
 	jwtKey = *param.Parameter.Value
-		
+
+	log.Debug().Str("======== > ssmJwtKwy", ssmJwtKwy).Msg("")
+	log.Debug().Str("======== > jwtKey", jwtKey).Msg("")
+
 	// Create a repository
 	authRepository, err := repository.NewAuthRepository(tableName)
 	if err != nil {
