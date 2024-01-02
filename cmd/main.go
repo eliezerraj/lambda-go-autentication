@@ -21,7 +21,7 @@ import(
 
 var (
 	logLevel		=	zerolog.DebugLevel // InfoLevel DebugLevel
-	version			=	"lambda-go-autentication v2.0"
+	version			=	"lambda-go-autentication v2.1"
 	authService		*service.AuthService
 	tableName		=	"user_login"
 	jwtKey			=	"my_secret_key"

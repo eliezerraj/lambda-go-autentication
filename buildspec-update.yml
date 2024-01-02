@@ -19,7 +19,7 @@ phases:
       - echo $BUCKET_FOLDER_NAME
       - echo $CODEDEPLOY_APPLICATION_NAME
       - echo $CODEDEPLOY_APPLICATION_GROUP
-      - echo $east
+      - echo $REGION_DEPLOYMENT
 
   build: 
     commands: 
