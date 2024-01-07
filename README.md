@@ -64,6 +64,20 @@ See: lambda-go-auth-apigw (extend example)
          "scope": ["test.read","test.write"]
       }
 
+      or
+
+      {
+         "user": "user-01",
+         "scope": ["admin"]
+      }
+
+      or
+
+      {
+         "user": "user-01",
+         "scope": ["info"]
+      }
+
 + GET /credentialScope/user-01
 
       {
