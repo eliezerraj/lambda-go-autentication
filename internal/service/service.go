@@ -47,7 +47,7 @@ func (a AuthService) Login(ctx context.Context, credential domain.Credential) (*
 	}
 
 	// Set a JWT expiration date 
-	expirationTime := time.Now().Add(300 * time.Minute)
+	expirationTime := time.Now().Add(720 * time.Minute)
 
 	// Create a JWT Oauth 2.0 with all scopes and expiration date
 	jwtData := &domain.JwtData{
