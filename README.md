@@ -20,9 +20,13 @@ See: lambda-go-auth-apigw (extend example)
 
    Manually compile the function
 
+      Old Version 
       GOOD=linux GOARCH=amd64 go build -o ../build/main main.go
-
       zip -jrm ../build/main.zip ../build/main
+
+      New Version
+      GOARCH=amd64 GOOS=linux go build -o ../build/bootstrap main.go
+      zip -jrm ../build/main.zip ../build/bootstrap
 
       aws lambda update-function-code \
         --function-name lambda-go-autentication \
@@ -101,3 +105,11 @@ Lambda function already created
 + buildspec-test.yml: make a go test using services_test.go
 + buildspec-update.yml: update the lambda-function using S3 build
 + appspec.yml: blue/gree deploy
+
+## Lambda Env Variables
+
+      APP_NAME	lambda-go-autentication
+      JWT_KEY	my_secret_key
+      REGION	us-east-2
+      SSM_JWT_KEY	key-secret
+      TABLE_NAME	user_login_2

@@ -6,32 +6,36 @@ import (
 	"context"
 	"github.com/rs/zerolog"
 
-	"github.com/lambda-go-autentication/internal/core/domain"
+	"github.com/aws/aws-sdk-go-v2/config"
+	
+	"github.com/lambda-go-autentication/internal/core"
 	"github.com/lambda-go-autentication/internal/erro"
 	"github.com/lambda-go-autentication/internal/repository"
 
 )
 
 var (
-	logLevel		=zerolog.DebugLevel // InfoLevel DebugLevel
+	logLevel		= zerolog.DebugLevel // InfoLevel DebugLevel
 	authService		*AuthService
-	tableName		= "user_login"
+	tableName		= "user_login_2"
 	jwtKey			= "my_secret_key"
 )
 
 func TestSignIn(t *testing.T) {
 	zerolog.SetGlobalLevel(logLevel)
 
-	t.Setenv("AWS_REGION", "us-east-2")
-	credential := domain.Credential{User: "user123", Password: "pass123" }
+	ctx := context.Background()
+	awsConfig, err := config.LoadDefaultConfig(ctx)
 
-	authRepository, err := repository.NewAuthRepository(tableName)
+	credential := core.Credential{User: "user123", Password: "pass123" }
+
+	authRepository, err := repository.NewAuthRepository(tableName, awsConfig)
 	if err != nil {
 		t.Errorf("configuration error AuthRepository() %v ",err.Error())
 	}
 
 	authService = NewAuthService([]byte(jwtKey), authRepository)
-	res, err := authService.SignIn(credential)
+	res, err := authService.SignIn(ctx, credential)
 	if err != nil {
 		t.Errorf("Error -TestSignIn Erro %v ", err)
 	}
@@ -45,22 +49,23 @@ func TestSignIn(t *testing.T) {
 func TestAddScope(t *testing.T) {
 	zerolog.SetGlobalLevel(logLevel)
 
-	t.Setenv("AWS_REGION", "us-east-2")
+	ctx := context.Background()
+	awsConfig, err := config.LoadDefaultConfig(ctx)
 
 	scope := []string{"info.read",
 								"a.read",
 								"sum.write",
 								"version",
 								"header.read"}
-	credential_scope := domain.CredentialScope{User: "user123", Scope: scope }
+	credential_scope := core.CredentialScope{User: "user123", Scope: scope }
 
-	authRepository, err := repository.NewAuthRepository(tableName)
+	authRepository, err := repository.NewAuthRepository(tableName, awsConfig)
 	if err != nil {
 		t.Errorf("configuration error AuthRepository() %v ",err.Error())
 	}
 
 	authService = NewAuthService([]byte(jwtKey), authRepository)
-	res, err := authService.AddScope(credential_scope)
+	res, err := authService.AddScope(ctx, credential_scope)
 	if err != nil {
 		t.Errorf("Error -TestAddScope Erro %v ", err)
 	}
@@ -74,17 +79,18 @@ func TestAddScope(t *testing.T) {
 func TestQueryCredentialScope(t *testing.T) {
 	zerolog.SetGlobalLevel(logLevel)
 
-	t.Setenv("AWS_REGION", "us-east-2")
+	ctx := context.Background()
+	awsConfig, err := config.LoadDefaultConfig(ctx)
 
-	credential := domain.Credential{User: "user123" }
+	credential := core.Credential{User: "user123" }
 
-	authRepository, err := repository.NewAuthRepository(tableName)
+	authRepository, err := repository.NewAuthRepository(tableName, awsConfig)
 	if err != nil {
 		t.Errorf("configuration error AuthRepository() %v ",err.Error())
 	}
 
 	authService = NewAuthService([]byte(jwtKey), authRepository)
-	res, err := authService.QueryCredentialScope(context.TODO(),credential)
+	res, err := authService.QueryCredentialScope(ctx, credential)
 	if err != nil {
 		t.Errorf("Error -TestQueryCredentialScope Erro %v ", err)
 	}
@@ -98,16 +104,18 @@ func TestQueryCredentialScope(t *testing.T) {
 func TestLogin(t *testing.T) {
 	zerolog.SetGlobalLevel(logLevel)
 
-	t.Setenv("AWS_REGION", "us-east-2")
-	credential := domain.Credential{User: "user123", Password: "pass123" }
+	ctx := context.Background()
+	awsConfig, err := config.LoadDefaultConfig(ctx)
 
-	authRepository, err := repository.NewAuthRepository(tableName)
+	credential := core.Credential{User: "user123", Password: "pass123" }
+
+	authRepository, err := repository.NewAuthRepository(tableName, awsConfig)
 	if err != nil {
 		t.Errorf("configuration error AuthRepository() %v ",err.Error())
 	}
 
 	authService = NewAuthService([]byte(jwtKey), authRepository)
-	res, err := authService.Login(context.TODO(),credential)
+	res, err := authService.Login(ctx,credential)
 	if err != nil {
 		t.Errorf("Error -TestLogin Erro %v ", err)
 	}
@@ -121,10 +129,11 @@ func TestLogin(t *testing.T) {
 func TestTokenValidation(t *testing.T) {
 	zerolog.SetGlobalLevel(logLevel)
 
-	t.Setenv("AWS_REGION", "us-east-2")
-	credential := domain.Credential{User: "user123", Password: "pass123" }
+	ctx := context.Background()
+	awsConfig, err := config.LoadDefaultConfig(ctx)
+	credential := core.Credential{User: "user123", Password: "pass123" }
 	
-	authRepository, err := repository.NewAuthRepository(tableName)
+	authRepository, err := repository.NewAuthRepository(tableName, awsConfig)
 	if err != nil {
 		t.Errorf("configuration error AuthRepository() %v ",err.Error())
 	}
@@ -142,7 +151,7 @@ func TestTokenValidation(t *testing.T) {
 
 	credential.Token = res.Token
 
-	isValid, err := authService.TokenValidation(credential)
+	isValid, err := authService.TokenValidation(ctx, credential)
 	if err != nil {
 		t.Errorf("Error - TestTokenValidation Erro %v ", err)
 	}
@@ -156,10 +165,11 @@ func TestTokenValidation(t *testing.T) {
 func TestRefreshToken(t *testing.T) {
 	zerolog.SetGlobalLevel(logLevel)
 
-	t.Setenv("AWS_REGION", "us-east-2")
-	credential := domain.Credential{User: "user123", Password: "pass123" }
+	ctx := context.Background()
+	awsConfig, err := config.LoadDefaultConfig(ctx)
+	credential := core.Credential{User: "user123", Password: "pass123" }
 	
-	authRepository, err := repository.NewAuthRepository(tableName)
+	authRepository, err := repository.NewAuthRepository(tableName, awsConfig)
 	if err != nil {
 		t.Errorf("configuration error AuthRepository() %v ",err.Error())
 	}
@@ -177,7 +187,7 @@ func TestRefreshToken(t *testing.T) {
 
 	credential.Token = res.Token
 
-	_, err = authService.RefreshToken(credential)
+	_, err = authService.RefreshToken(ctx, credential)
 	if errors.Is(err, erro.ErrTokenStillValid) {
 		t.Logf("Success TestRefreshToken %err ", err)
 	} else {

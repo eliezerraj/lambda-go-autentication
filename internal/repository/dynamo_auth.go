@@ -5,17 +5,17 @@ import(
 	"fmt"
 	"context"
 
-	"github.com/lambda-go-autentication/internal/core/domain"
+	"github.com/lambda-go-autentication/internal/core"
 	"github.com/lambda-go-autentication/internal/erro"
 
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	
 	"github.com/aws/aws-xray-sdk-go/xray"
-
 )
 
-func (r *AuthRepository) Login(ctx context.Context, user_credential domain.Credential) (*domain.Credential, error){
+func (r *AuthRepository) Login(ctx context.Context, user_credential core.Credential) (*core.Credential, error){
 	childLogger.Debug().Msg("Login")
 
 	_, root := xray.BeginSubsegment(ctx, "Repository.Login")
@@ -25,8 +25,8 @@ func (r *AuthRepository) Login(ctx context.Context, user_credential domain.Crede
 	id := "USER-" + user_credential.User
 
 	keyCond = expression.KeyAnd(
-		expression.Key("id").Equal(expression.Value(id)),
-		expression.Key("sk").BeginsWith(id),
+		expression.Key("ID").Equal(expression.Value(id)),
+		expression.Key("SK").BeginsWith(id),
 	)
 
 	expr, err := expression.NewBuilder().
@@ -43,14 +43,14 @@ func (r *AuthRepository) Login(ctx context.Context, user_credential domain.Crede
 									KeyConditionExpression:    expr.KeyCondition(),
 	}
 
-	result, err := r.client.QueryWithContext(ctx, key)
+	result, err := r.client.Query(ctx, key)
 	if err != nil {
 		childLogger.Error().Err(err).Msg("error Query")
 		return nil, erro.ErrQuery
 	}
 
-	credential := []domain.Credential{}
-	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &credential)
+	credential := []core.Credential{}
+	err = attributevalue.UnmarshalListOfMaps(result.Items, &credential)
     if err != nil {
 		childLogger.Error().Err(err).Msg("error UnmarshalListOfMaps")
 		return nil, erro.ErrUnmarshal
@@ -63,75 +63,61 @@ func (r *AuthRepository) Login(ctx context.Context, user_credential domain.Crede
 	}
 }
 
-func (r *AuthRepository) SignIn(user_credential domain.Credential) (*domain.Credential, error){
+func (r *AuthRepository) SignIn(ctx context.Context, user_credential core.Credential) (*core.Credential, error){
 	childLogger.Debug().Msg("SignIn")
 
 	user_credential.ID 			= "USER-" + user_credential.User
 	user_credential.SK 			= "USER-" + user_credential.User
 	user_credential.Updated_at 	= time.Now()
 
-	item, err := dynamodbattribute.MarshalMap(user_credential)
+	item, err := attributevalue.MarshalMap(user_credential)
 	if err != nil {
 		childLogger.Error().Err(err).Msg("erro MarshalMap")
 		return nil, erro.ErrUnmarshal
 	}
 
-	transactItems := []*dynamodb.TransactWriteItem{}
-	transactItems = append(transactItems, &dynamodb.TransactWriteItem{Put: &dynamodb.Put{
-		TableName: r.tableName,
-		Item:      item,
-	}})
+	putInput := &dynamodb.PutItemInput{
+        TableName: r.tableName,
+        Item:      item,
+    }
 
-	transaction := &dynamodb.TransactWriteItemsInput{TransactItems: transactItems}
-	if err := transaction.Validate(); err != nil {
-		childLogger.Error().Err(err).Msg("error TransactWriteItemsInput")
+	_, err = r.client.PutItem(ctx, putInput)
+    if err != nil {
+		childLogger.Error().Err(err).Msg("error SignIn TransactWriteItems")
 		return nil, erro.ErrInsert
-	}
-
-	_, err = r.client.TransactWriteItems(transaction)
-	if err != nil {
-		childLogger.Error().Err(err).Msg("error TransactWriteItems")
-		return nil, erro.ErrInsert
-	}
+    }
 
 	return &user_credential , nil
 }
 
-func (r *AuthRepository) AddScope(credential_scope domain.CredentialScope) (*domain.CredentialScope, error){
+func (r *AuthRepository) AddScope(ctx context.Context, credential_scope core.CredentialScope) (*core.CredentialScope, error){
 	childLogger.Debug().Msg("AddScope")
 
 	credential_scope.ID 			= "USER-" + credential_scope.User
 	credential_scope.SK 			= "SCOPE-001"
 	credential_scope.Updated_at 	= time.Now()
 
-	item, err := dynamodbattribute.MarshalMap(credential_scope)
+	item, err := attributevalue.MarshalMap(credential_scope)
 	if err != nil {
 		childLogger.Error().Err(err).Msg("error MarshalMap")
 		return nil, erro.ErrUnmarshal
 	}
 
-	transactItems := []*dynamodb.TransactWriteItem{}
-	transactItems = append(transactItems, &dynamodb.TransactWriteItem{Put: &dynamodb.Put{
-		TableName: r.tableName,
-		Item:      item,
-	}})
+	putInput := &dynamodb.PutItemInput{
+        TableName: r.tableName,
+        Item:      item,
+    }
 
-	transaction := &dynamodb.TransactWriteItemsInput{TransactItems: transactItems}
-	if err := transaction.Validate(); err != nil {
-		childLogger.Error().Err(err).Msg("error TransactWriteItemsInput")
+	_, err = r.client.PutItem(context.TODO(), putInput)
+    if err != nil {
+		childLogger.Error().Err(err).Msg("error AddScope TransactWriteItems")
 		return nil, erro.ErrInsert
-	}
-
-	_, err = r.client.TransactWriteItems(transaction)
-	if err != nil {
-		childLogger.Error().Err(err).Msg("error TransactWriteItems")
-		return nil, erro.ErrInsert
-	}
+    }
 
 	return &credential_scope , nil
 }
 
-func (r *AuthRepository) QueryCredentialScope(ctx context.Context, user_credential domain.Credential) (*domain.CredentialScope, error){
+func (r *AuthRepository) QueryCredentialScope(ctx context.Context, user_credential core.Credential) (*core.CredentialScope, error){
 	childLogger.Debug().Msg("QueryCredentialScope")
 
 	_, root := xray.BeginSubsegment(ctx, "Repository.QueryCredentialScope")
@@ -143,8 +129,8 @@ func (r *AuthRepository) QueryCredentialScope(ctx context.Context, user_credenti
 	sk := "SCOPE-001"
 
 	keyCond = expression.KeyAnd(
-		expression.Key("id").Equal(expression.Value(id)),
-		expression.Key("sk").BeginsWith(sk),
+		expression.Key("ID").Equal(expression.Value(id)),
+		expression.Key("SK").BeginsWith(sk),
 	)
 
 	expr, err := expression.NewBuilder().
@@ -160,20 +146,20 @@ func (r *AuthRepository) QueryCredentialScope(ctx context.Context, user_credenti
 								KeyConditionExpression:    expr.KeyCondition(),
 							}
 
-	result, err := r.client.QueryWithContext(ctx, key)
+	result, err := r.client.Query(ctx, key)
 	if err != nil {
 		childLogger.Error().Err(err).Msg("error Query")
 		return nil, erro.ErrList
 	}
 
-	credential_scope_temp := []domain.CredentialScope{}
-	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &credential_scope_temp)
+	credential_scope_temp := []core.CredentialScope{}
+	err = attributevalue.UnmarshalListOfMaps(result.Items, &credential_scope_temp)
     if err != nil {
 		childLogger.Error().Err(err).Msg("error UnmarshalListOfMaps")
 		return nil, erro.ErrUnmarshal
     }
 
-	credential_scope_result := domain.CredentialScope{}
+	credential_scope_result := core.CredentialScope{}
 	for _, item := range credential_scope_temp{
 		credential_scope_result.ID = item.ID
 		credential_scope_result.SK = item.SK

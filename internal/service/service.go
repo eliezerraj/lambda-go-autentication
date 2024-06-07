@@ -5,7 +5,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"time"
 
-	"github.com/lambda-go-autentication/internal/core/domain"
+	"github.com/lambda-go-autentication/internal/core"
 	"github.com/lambda-go-autentication/internal/erro"
 	"github.com/lambda-go-autentication/internal/repository"
 
@@ -29,7 +29,7 @@ func NewAuthService(jwtKey []byte,
 	}
 }
 
-func (a AuthService) Login(ctx context.Context, credential domain.Credential) (*domain.Authentication, error){
+func (a AuthService) Login(ctx context.Context, credential core.Credential) (*core.Authentication, error){
 	childLogger.Debug().Msg("Login")
 
 	_, root := xray.BeginSubsegment(ctx, "Service.Login")
@@ -50,7 +50,7 @@ func (a AuthService) Login(ctx context.Context, credential domain.Credential) (*
 	expirationTime := time.Now().Add(720 * time.Minute)
 
 	// Create a JWT Oauth 2.0 with all scopes and expiration date
-	jwtData := &domain.JwtData{
+	jwtData := &core.JwtData{
 								Username: credential.User,
 								Scope: credential_scope.Scope,
 								RegisteredClaims: jwt.RegisteredClaims{
@@ -65,28 +65,28 @@ func (a AuthService) Login(ctx context.Context, credential domain.Credential) (*
 		return nil, err
 	}
 
-	auth := domain.Authentication{	Token: tokenString, 
+	auth := core.Authentication{	Token: tokenString, 
 									ExpirationTime :expirationTime}
 
 	return &auth,nil
 }
 
-func (a AuthService) SignIn(credential domain.Credential) (*domain.Credential, error){
+func (a AuthService) SignIn(ctx context.Context, credential core.Credential) (*core.Credential, error){
 	childLogger.Debug().Msg("SignIn")
 
 	// Create a new credential
-	_, err := a.authRepository.SignIn(credential)
+	res, err := a.authRepository.SignIn(ctx, credential)
 	if err != nil {
 		return nil, err
 	}
-	return &credential,nil
+	return res, nil
 }
 
-func (a AuthService) TokenValidation(credential domain.Credential) (bool, error){
+func (a AuthService) TokenValidation(ctx context.Context, credential core.Credential) (bool, error){
 	childLogger.Debug().Msg("TokenValidation")
 
 	// Check with token is signed 
-	claims := &domain.JwtData{}
+	claims := &core.JwtData{}
 	tkn, err := jwt.ParseWithClaims(credential.Token, claims, func(token *jwt.Token) (interface{}, error) {
 		return a.jwtKey, nil
 	})
@@ -105,19 +105,19 @@ func (a AuthService) TokenValidation(credential domain.Credential) (bool, error)
 	return true ,nil
 }
 
-func (a AuthService) AddScope(credential_scope domain.CredentialScope) (*domain.CredentialScope, error){
+func (a AuthService) AddScope(ctx context.Context, credential_scope core.CredentialScope) (*core.CredentialScope, error){
 	childLogger.Debug().Msg("AddScope")
 
 	// Save the credentials scopes
-	_, err := a.authRepository.AddScope(credential_scope)
+	res, err := a.authRepository.AddScope(ctx, credential_scope)
 	if err != nil {
 		return nil, err
 	}
 
-	return &credential_scope, nil
+	return res, nil
 }
 
-func (a AuthService) QueryCredentialScope(ctx context.Context, credential domain.Credential) (*domain.CredentialScope, error){
+func (a AuthService) QueryCredentialScope(ctx context.Context, credential core.Credential) (*core.CredentialScope, error){
 	childLogger.Debug().Msg("QueryCredentialScope")
 
 	_, root := xray.BeginSubsegment(ctx, "Service.QueryCredentialScope")
@@ -132,11 +132,11 @@ func (a AuthService) QueryCredentialScope(ctx context.Context, credential domain
 	return credential_scope, nil
 }
 
-func (a AuthService) RefreshToken(credential domain.Credential) (*domain.Authentication, error){
+func (a AuthService) RefreshToken(ctx context.Context, credential core.Credential) (*core.Authentication, error){
 	childLogger.Debug().Msg("RefreshToken")
 
 	// Check with token is signed 
-	claims := &domain.JwtData{}
+	claims := &core.JwtData{}
 	tkn, err := jwt.ParseWithClaims(credential.Token, claims, func(token *jwt.Token) (interface{}, error) {
 		return a.jwtKey, nil
 	})
@@ -163,7 +163,7 @@ func (a AuthService) RefreshToken(credential domain.Credential) (*domain.Authent
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(a.jwtKey)
 
-	auth := domain.Authentication{	Token: tokenString, 
+	auth := core.Authentication{	Token: tokenString, 
 									ExpirationTime :expirationTime}
 
 	return &auth,nil
