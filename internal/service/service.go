@@ -5,12 +5,12 @@ import (
 	"github.com/rs/zerolog/log"
 	"time"
 
+	"github.com/lambda-go-autentication/internal/lib"
 	"github.com/lambda-go-autentication/internal/core"
 	"github.com/lambda-go-autentication/internal/erro"
 	"github.com/lambda-go-autentication/internal/repository"
 
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/aws/aws-xray-sdk-go/xray"
 )
 
 var childLogger = log.With().Str("service", "AuthService").Logger()
@@ -31,9 +31,10 @@ func NewAuthService(jwtKey []byte,
 
 func (a AuthService) Login(ctx context.Context, credential core.Credential) (*core.Authentication, error){
 	childLogger.Debug().Msg("Login")
+	childLogger.Debug().Interface("credential :",credential).Msg("")
 
-	_, root := xray.BeginSubsegment(ctx, "Service.Login")
-	defer root.Close(nil)
+	span := lib.Span(ctx, "service.login")	
+    defer span.End()
 
 	_, err := a.authRepository.Login(ctx, credential)
 	if err != nil {
@@ -74,6 +75,9 @@ func (a AuthService) Login(ctx context.Context, credential core.Credential) (*co
 func (a AuthService) SignIn(ctx context.Context, credential core.Credential) (*core.Credential, error){
 	childLogger.Debug().Msg("SignIn")
 
+	span := lib.Span(ctx, "service.signIn")	
+    defer span.End()
+
 	// Create a new credential
 	res, err := a.authRepository.SignIn(ctx, credential)
 	if err != nil {
@@ -84,6 +88,9 @@ func (a AuthService) SignIn(ctx context.Context, credential core.Credential) (*c
 
 func (a AuthService) TokenValidation(ctx context.Context, credential core.Credential) (bool, error){
 	childLogger.Debug().Msg("TokenValidation")
+
+	span := lib.Span(ctx, "service.tokenValidation")	
+    defer span.End()
 
 	// Check with token is signed 
 	claims := &core.JwtData{}
@@ -108,6 +115,9 @@ func (a AuthService) TokenValidation(ctx context.Context, credential core.Creden
 func (a AuthService) AddScope(ctx context.Context, credential_scope core.CredentialScope) (*core.CredentialScope, error){
 	childLogger.Debug().Msg("AddScope")
 
+	span := lib.Span(ctx, "service.addScope")	
+    defer span.End()
+
 	// Save the credentials scopes
 	res, err := a.authRepository.AddScope(ctx, credential_scope)
 	if err != nil {
@@ -120,8 +130,8 @@ func (a AuthService) AddScope(ctx context.Context, credential_scope core.Credent
 func (a AuthService) QueryCredentialScope(ctx context.Context, credential core.Credential) (*core.CredentialScope, error){
 	childLogger.Debug().Msg("QueryCredentialScope")
 
-	_, root := xray.BeginSubsegment(ctx, "Service.QueryCredentialScope")
-	defer root.Close(nil)
+	span := lib.Span(ctx, "service.queryCredentialScope")	
+    defer span.End()
 
 	// Query all scope linked with the credentials
 	credential_scope, err := a.authRepository.QueryCredentialScope(ctx, credential)
@@ -134,6 +144,9 @@ func (a AuthService) QueryCredentialScope(ctx context.Context, credential core.C
 
 func (a AuthService) RefreshToken(ctx context.Context, credential core.Credential) (*core.Authentication, error){
 	childLogger.Debug().Msg("RefreshToken")
+
+	span := lib.Span(ctx, "service.refreshToken")	
+    defer span.End()
 
 	// Check with token is signed 
 	claims := &core.JwtData{}

@@ -24,6 +24,9 @@ See: lambda-go-auth-apigw (extend example)
       GOOD=linux GOARCH=amd64 go build -o ../build/main main.go
       zip -jrm ../build/main.zip ../build/main
 
+      Convert
+      aws lambda update-function-configuration --function-name lambda-go-autentication --runtime provided.al2
+
       New Version
       GOARCH=amd64 GOOS=linux go build -o ../build/bootstrap main.go
       zip -jrm ../build/main.zip ../build/bootstrap
@@ -113,3 +116,19 @@ Lambda function already created
       REGION	us-east-2
       SSM_JWT_KEY	key-secret
       TABLE_NAME	user_login_2
+      OTEL_EXPORTER_OTLP_ENDPOINT localhost:4317
+
+## Running locally
+
++ Create a docker image
++ Setup the docker compose
++ Download the lambda aws-lambda-rie
+
+      mkdir -p .aws-lambda-rie && curl -Lo .aws-lambda-rie/aws-lambda-rie https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/latest/download/aws-lambda-rie && chmod +x .aws-lambda-rie/aws-lambda-rie
+
++ start the docker compose
+   /deployment-locally/start.sh
+
++ Test
+
+      curl --location 'http://localhost:9000/2015-03-31/functions/function/invocations' --header 'Content-Type: application/json' --data '{"httpMethod":"GET","resource":"/info","pathParameters": {"id":"1"}}'

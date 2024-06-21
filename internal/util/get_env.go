@@ -7,8 +7,10 @@ import(
 	"github.com/lambda-go-autentication/internal/core"
 )
 
+var childLogger = log.With().Str("util", "util").Logger()
+
 func GetAppInfo() core.AppServer {
-	log.Debug().Msg("getEnv")
+	childLogger.Debug().Msg("getEnv")
 
 	var appServer	core.AppServer
 	var infoApp		core.InfoApp
@@ -35,6 +37,10 @@ func GetAppInfo() core.AppServer {
 
 	if os.Getenv("TABLE_NAME") !=  "" {
 		infoApp.TableName = os.Getenv("TABLE_NAME")
+	}
+
+	if os.Getenv("ENV") !=  "" {
+		infoApp.Env = os.Getenv("ENV")
 	}
 
 	appServer.InfoApp = &infoApp

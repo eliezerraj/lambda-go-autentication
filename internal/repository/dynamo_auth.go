@@ -11,15 +11,10 @@ import(
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	
-	"github.com/aws/aws-xray-sdk-go/xray"
 )
 
 func (r *AuthRepository) Login(ctx context.Context, user_credential core.Credential) (*core.Credential, error){
 	childLogger.Debug().Msg("Login")
-
-	_, root := xray.BeginSubsegment(ctx, "Repository.Login")
-	defer root.Close(nil)
 
 	var keyCond expression.KeyConditionBuilder
 	id := "USER-" + user_credential.User
@@ -119,9 +114,6 @@ func (r *AuthRepository) AddScope(ctx context.Context, credential_scope core.Cre
 
 func (r *AuthRepository) QueryCredentialScope(ctx context.Context, user_credential core.Credential) (*core.CredentialScope, error){
 	childLogger.Debug().Msg("QueryCredentialScope")
-
-	_, root := xray.BeginSubsegment(ctx, "Repository.QueryCredentialScope")
-	defer root.Close(nil)
 
 	var keyCond expression.KeyConditionBuilder
 

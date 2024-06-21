@@ -14,7 +14,7 @@ import(
 	"github.com/lambda-go-autentication/internal/erro"
 	"github.com/lambda-go-autentication/internal/core"
 
-	"github.com/aws/aws-xray-sdk-go/xray"
+	//"github.com/aws/aws-xray-sdk-go/xray"
 )
 
 var childLogger = log.With().Str("handler", "AuthHandler").Logger()
@@ -60,8 +60,8 @@ func (h *AuthHandler) UnhandledMethod() (*events.APIGatewayProxyResponse, error)
 func (h *AuthHandler) Login(ctx context.Context, req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
 	childLogger.Debug().Msg("Login")
 
-	_, root := xray.BeginSubsegment(ctx, "Handler.Login")
-	defer root.Close(nil)
+	//_, root := xray.BeginSubsegment(ctx, "Handler.Login")
+	//defer root.Close(nil)
 
 	var credential core.Credential
     if err := json.Unmarshal([]byte(req.Body), &credential); err != nil {

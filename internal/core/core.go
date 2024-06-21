@@ -8,6 +8,7 @@ import (
 
 type AppServer struct {
 	InfoApp 		*InfoApp 		`json:"info_app"`
+	ConfigOTEL		*ConfigOTEL		`json:"otel_config"`
 }
 
 type InfoApp struct {
@@ -18,6 +19,8 @@ type InfoApp struct {
 	TableName			string `json:"table_name,omitempty"`
 	JwtKey				string `json:"jwt_key,omitempty"`
 	SSMJwtKey			string `json:"ssm_jwt_key,omitempty"`
+	Env					string `json:"env,omitempty"`
+	AccountID			string `json:"account,omitempty"`
 }
 
 type Authentication struct {
@@ -48,4 +51,15 @@ type JwtData struct {
 	Username	string 	`json:"username"`
 	Scope	  []string 	`json:"scope"`
 	jwt.RegisteredClaims
+}
+
+type ConfigOTEL struct {
+	OtelExportEndpoint		string
+	OtelPath				string
+	TimeInterval            int64    `mapstructure:"TimeInterval"`
+	TimeAliveIncrementer    int64    `mapstructure:"RandomTimeAliveIncrementer"`
+	TotalHeapSizeUpperBound int64    `mapstructure:"RandomTotalHeapSizeUpperBound"`
+	ThreadsActiveUpperBound int64    `mapstructure:"RandomThreadsActiveUpperBound"`
+	CpuUsageUpperBound      int64    `mapstructure:"RandomCpuUsageUpperBound"`
+	SampleAppPorts          []string `mapstructure:"SampleAppPorts"`
 }

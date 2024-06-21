@@ -128,6 +128,7 @@ Resources:
           JWT_KEY: 'my_secret_key'
           SSM_JWT_KEY: 'key-secret'
           TABLE_NAME: 'user_login'
+          OTEL_EXPORTER_OTLP_ENDPOINT: 'localhost:4317'
       Role: 
         Fn::GetAtt: 
           - "LambdaExecutionRole"

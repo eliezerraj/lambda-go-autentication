@@ -18,6 +18,17 @@ import(
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/lambda-go-autentication/internal/lib"
+
+	"go.opentelemetry.io/otel/propagation"
+
+	"go.opentelemetry.io/contrib/propagators/aws/xray"
+	"go.opentelemetry.io/otel"
+ 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda/xrayconfig"
+
+	"go.opentelemetry.io/otel/trace"
 )
 
 var (
@@ -26,26 +37,37 @@ var (
 	authService		*service.AuthService
 	authHandler		*handler.AuthHandler
 	response		*events.APIGatewayProxyResponse
+	tracer 			trace.Tracer
 )
 
 func init(){
 	log.Debug().Msg("init")
 	zerolog.SetGlobalLevel(logLevel)
 	appServer = util.GetAppInfo()
+	configOTEL := util.GetOtelEnv()
+	appServer.ConfigOTEL = &configOTEL
+}
+
+func InstrumentHandler(tp trace.TracerProvider, handlerFunc interface{}) interface{} {
+	return otellambda.InstrumentHandler(handlerFunc,
+		otellambda.WithTracerProvider(tp),
+		otellambda.WithPropagator(propagation.TraceContext{}))
 }
 
 func main(){
 	log.Debug().Msg("main")
+	log.Debug().Interface("appServer :",appServer).Msg("")
 
-	// set config
-	ctx := context.Background()
+	ctx := context.Background() // set config
 	awsConfig, err := config.LoadDefaultConfig(ctx)
-	// Get Parameter-Store
 	if err != nil {
 		panic("configuration error create new aws session " + err.Error())
 	}
 		
-	ssmsvc := ssm.NewFromConfig(awsConfig)
+	// Instrument all AWS clients.
+	otelaws.AppendMiddlewares(&awsConfig.APIOptions)
+
+	ssmsvc := ssm.NewFromConfig(awsConfig) // Get Parameter-Store
 	param, err := ssmsvc.GetParameter(ctx, &ssm.GetParameterInput{
 		Name:           aws.String(appServer.InfoApp.SSMJwtKey),
 		WithDecryption: aws.Bool(false),
@@ -63,21 +85,32 @@ func main(){
 	if err != nil {
 		panic("configuration error AuthRepository(), " + err.Error())
 	}
-	// Create a authorization service and inject the repository
-	authService = service.NewAuthService([]byte(jwtKey), authRepository)
-	// Create a handler and inject the service
-	authHandler = handler.NewAuthHandler(*authService, appServer)
+	
+	authService = service.NewAuthService([]byte(jwtKey), authRepository) // Create a authorization service and inject the repository
+	authHandler = handler.NewAuthHandler(*authService, appServer) // Create a handler and inject the service
 
-	// Start lambda handler
-	log.Debug().Msg("Start ... lambdaHandler")
-	lambda.Start(lambdaHandler)
+	//----- OTEL ----//
+	tp := lib.NewTracerProvider(ctx, appServer.ConfigOTEL, appServer.InfoApp)
+	defer func(ctx context.Context) {
+		err := tp.Shutdown(ctx)
+		if err != nil {
+			log.Error().Err(err).Msg("Error shutting down tracer provider")
+		}
+	}(ctx)
+
+	otel.SetTextMapPropagator(xray.Propagator{})
+	otel.SetTracerProvider(tp)
+
+	tracer = tp.Tracer("lambda-tracer-v1")
+	lambda.Start(otellambda.InstrumentHandler(lambdaHandler, xrayconfig.WithRecommendedOptions(tp)... ))
 }
 
 func lambdaHandler(ctx context.Context, req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
 	log.Debug().Msg("lambdaHandler")
-	//log.Debug().Msg("-------------------")
-	//log.Debug().Str("req.Body", req.Body).Msg("")
-	//log.Debug().Msg("--------------------")
+	log.Debug().Str("req.Body", req.Body).Msg("")
+
+	ctx, span := tracer.Start(ctx, "lambdaHandler_otel_v1.2")
+    defer span.End()
 
 	// Check the http method and path
 	switch req.HTTPMethod {
