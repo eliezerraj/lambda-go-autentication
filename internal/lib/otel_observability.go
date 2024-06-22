@@ -15,7 +15,6 @@ import(
 	"go.opentelemetry.io/otel/trace"
 	"go.opentelemetry.io/otel/semconv/v1.17.0"
 	"go.opentelemetry.io/otel/sdk/resource"
-	//"go.opentelemetry.io/contrib/detectors/aws/lambdadetector"
 )
 
 var childLogger = log.With().Str("lib", "instrumentation").Logger()
@@ -36,7 +35,7 @@ func Span(ctx context.Context, spanName string) trace.Span {
 		spanName,
 		trace.WithSpanKind(trace.SpanKindConsumer),
 		trace.WithAttributes(
-			attribute.String("customer", cID),
+			attribute.String("user_id", cID),
 			attribute.String("request_id", rID)),
 	)
 
@@ -58,7 +57,6 @@ func Attributes(ctx context.Context, infoApp *core.InfoApp) []attribute.KeyValue
 func buildResources(ctx context.Context, infoApp *core.InfoApp) (*resource.Resource, error) {
 	return resource.New(
 		ctx,
-		//resource.WithDetectors(lambdadetector.NewResourceDetector()),
 		resource.WithAttributes(Attributes(ctx, infoApp)...),
 	)
 }

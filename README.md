@@ -36,6 +36,10 @@ See: lambda-go-auth-apigw (extend example)
         --zip-file fileb:///mnt/c/Eliezer/workspace/github.com/lambda-go-autentication/build/main.zip \
         --publish
 
+## Install a LambdaLayer (OTEL)
+
+arn:aws:lambda:us-east-2:901920570463:layer:aws-otel-collector-amd64-ver-0-90-1:1
+
 ## Endpoints
 
 + POST /signIn
@@ -111,12 +115,13 @@ Lambda function already created
 
 ## Lambda Env Variables
 
-      APP_NAME	lambda-go-autentication
-      JWT_KEY	my_secret_key
-      REGION	us-east-2
-      SSM_JWT_KEY	key-secret
-      TABLE_NAME	user_login_2
-      OTEL_EXPORTER_OTLP_ENDPOINT localhost:4317
+      ENV:        dev  
+      APP_NAME:	lambda-go-autentication
+      JWT_KEY:	   my_secret_key
+      REGION:	   us-east-2
+      SSM_JWT_KEY:	key-secret
+      TABLE_NAME:	   user_login_2
+      OTEL_EXPORTER_OTLP_ENDPOINT: localhost:4317
 
 ## Running locally
 

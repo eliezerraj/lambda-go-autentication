@@ -11,10 +11,9 @@ import(
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-lambda-go/events"
 
+	"github.com/lambda-go-autentication/internal/lib"
 	"github.com/lambda-go-autentication/internal/erro"
 	"github.com/lambda-go-autentication/internal/core"
-
-	//"github.com/aws/aws-xray-sdk-go/xray"
 )
 
 var childLogger = log.With().Str("handler", "AuthHandler").Logger()
@@ -60,8 +59,8 @@ func (h *AuthHandler) UnhandledMethod() (*events.APIGatewayProxyResponse, error)
 func (h *AuthHandler) Login(ctx context.Context, req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
 	childLogger.Debug().Msg("Login")
 
-	//_, root := xray.BeginSubsegment(ctx, "Handler.Login")
-	//defer root.Close(nil)
+	span := lib.Span(ctx, "handler.login")	
+    defer span.End()
 
 	var credential core.Credential
     if err := json.Unmarshal([]byte(req.Body), &credential); err != nil {
@@ -83,6 +82,9 @@ func (h *AuthHandler) Login(ctx context.Context, req events.APIGatewayProxyReque
 func (h *AuthHandler) SignIn(ctx context.Context, req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
 	childLogger.Debug().Msg("SignIn")
 
+	span := lib.Span(ctx, "handler.signIn")	
+    defer span.End()
+
 	var credential core.Credential
     if err := json.Unmarshal([]byte(req.Body), &credential); err != nil {
         return ApiHandlerResponse(http.StatusBadRequest, MessageBody{ErrorMsg: aws.String(err.Error())})
@@ -102,6 +104,9 @@ func (h *AuthHandler) SignIn(ctx context.Context, req events.APIGatewayProxyRequ
 
 func (h *AuthHandler) TokenValidation(ctx context.Context, req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
 	childLogger.Debug().Msg("TokenValidation")
+
+	span := lib.Span(ctx, "handler.tokenValidation")	
+    defer span.End()
 
 	var token core.Credential
     if err := json.Unmarshal([]byte(req.Body), &token); err != nil {
@@ -124,6 +129,9 @@ func (h *AuthHandler) TokenValidation(ctx context.Context, req events.APIGateway
 func (h *AuthHandler) RefreshToken(ctx context.Context, req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
 	childLogger.Debug().Msg("RefreshToken")
 
+	span := lib.Span(ctx, "handler.refreshToken")	
+    defer span.End()
+
 	var token core.Credential
     if err := json.Unmarshal([]byte(req.Body), &token); err != nil {
         return ApiHandlerResponse(http.StatusBadRequest, MessageBody{ErrorMsg: aws.String(err.Error())})
@@ -144,6 +152,9 @@ func (h *AuthHandler) RefreshToken(ctx context.Context, req events.APIGatewayPro
 
 func (h *AuthHandler) QueryCredentialScope(ctx context.Context, req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
 	childLogger.Debug().Msg("QueryCredentialScope")
+	
+	span := lib.Span(ctx, "handler.queryCredentialScope")	
+    defer span.End()
 
 	id := req.PathParameters["id"]
 	if len(id) == 0 {
@@ -166,6 +177,9 @@ func (h *AuthHandler) QueryCredentialScope(ctx context.Context, req events.APIGa
 func (h *AuthHandler) AddScope(ctx context.Context, req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
 	childLogger.Debug().Msg("AddScope")
 
+	span := lib.Span(ctx, "handler.addScope")	
+    defer span.End()
+
 	var credential_scope core.CredentialScope
     if err := json.Unmarshal([]byte(req.Body), &credential_scope); err != nil {
         return ApiHandlerResponse(http.StatusBadRequest, MessageBody{ErrorMsg: aws.String(err.Error())})
@@ -183,8 +197,11 @@ func (h *AuthHandler) AddScope(ctx context.Context, req events.APIGatewayProxyRe
 	return handlerResponse, nil
 }
 
-func (h *AuthHandler) GetInfo() (*events.APIGatewayProxyResponse, error) {
+func (h *AuthHandler) GetInfo(ctx context.Context) (*events.APIGatewayProxyResponse, error) {
 	childLogger.Debug().Msg("GetInfo")
+	
+	span := lib.Span(ctx, "handler.getInfo")	
+    defer span.End()
 
 	handlerResponse, err := ApiHandlerResponse(http.StatusOK, h.appServer)
 	if err != nil {

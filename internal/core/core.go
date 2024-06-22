@@ -55,7 +55,6 @@ type JwtData struct {
 
 type ConfigOTEL struct {
 	OtelExportEndpoint		string
-	OtelPath				string
 	TimeInterval            int64    `mapstructure:"TimeInterval"`
 	TimeAliveIncrementer    int64    `mapstructure:"RandomTimeAliveIncrementer"`
 	TotalHeapSizeUpperBound int64    `mapstructure:"RandomTotalHeapSizeUpperBound"`

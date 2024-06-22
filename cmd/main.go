@@ -20,14 +20,11 @@ import(
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/lambda-go-autentication/internal/lib"
 
-	"go.opentelemetry.io/otel/propagation"
-
 	"go.opentelemetry.io/contrib/propagators/aws/xray"
 	"go.opentelemetry.io/otel"
  	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda/xrayconfig"
-
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -46,12 +43,6 @@ func init(){
 	appServer = util.GetAppInfo()
 	configOTEL := util.GetOtelEnv()
 	appServer.ConfigOTEL = &configOTEL
-}
-
-func InstrumentHandler(tp trace.TracerProvider, handlerFunc interface{}) interface{} {
-	return otellambda.InstrumentHandler(handlerFunc,
-		otellambda.WithTracerProvider(tp),
-		otellambda.WithPropagator(propagation.TraceContext{}))
 }
 
 func main(){
@@ -101,7 +92,7 @@ func main(){
 	otel.SetTextMapPropagator(xray.Propagator{})
 	otel.SetTracerProvider(tp)
 
-	tracer = tp.Tracer("lambda-tracer-v1")
+	tracer = tp.Tracer("lambda-go-autentication-tracer")
 	lambda.Start(otellambda.InstrumentHandler(lambdaHandler, xrayconfig.WithRecommendedOptions(tp)... ))
 }
 
@@ -118,7 +109,7 @@ func lambdaHandler(ctx context.Context, req events.APIGatewayProxyRequest) (*eve
 		if (req.Resource == "/credentialScope/{id}"){  
 			response, _ = authHandler.QueryCredentialScope(ctx, req) // Query the scopes associated with credential
 		}else if (req.Resource == "/info"){
-			response, _ = authHandler.GetInfo()
+			response, _ = authHandler.GetInfo(ctx)
 		}else {
 			response, _ = authHandler.UnhandledMethod()
 		}

@@ -65,7 +65,7 @@ Parameters:
   ManagedPolicyParameterThree:
     Description: Inform policy ARN (opcional)
     Type: String 
-    Default: ""
+    Default: arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
 
   Runtime:
     Description: Runtime Environment name e.g nodejs, go1.x, python3.9
@@ -123,12 +123,13 @@ Resources:
       Environment:
         Variables:
           APP_NAME: 'lambda-go-autentication'
-          REGION: 'us-east-2'
-          VERSION: '1.0'
+          ENV: !Ref Env
           JWT_KEY: 'my_secret_key'
+          OTEL_EXPORTER_OTLP_ENDPOINT: 'localhost:4317'
+          REGION: 'us-east-2'
           SSM_JWT_KEY: 'key-secret'
           TABLE_NAME: 'user_login'
-          OTEL_EXPORTER_OTLP_ENDPOINT: 'localhost:4317'
+          VERSION: '1.0'
       Role: 
         Fn::GetAtt: 
           - "LambdaExecutionRole"
