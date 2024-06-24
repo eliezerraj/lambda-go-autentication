@@ -30,7 +30,6 @@ phases:
     commands:
       - echo Build our go application on `date`
       - GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o ./bootstrap ./cmd/main.go
-      #- GOOD=linux GOARCH=amd64 CGO_ENABLED=0 go build -o main ./cmd/main.go
 
   post_build:
       commands:
