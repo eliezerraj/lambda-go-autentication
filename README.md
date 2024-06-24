@@ -126,6 +126,9 @@ Lambda function already created
 ## Running locally
 
 + Create a docker image
+
+      docker build -t lambda-go-autentication .
+
 + Setup the docker compose
 + Download the lambda aws-lambda-rie
 

@@ -11,7 +11,7 @@ import(
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-lambda-go/events"
 
-	"github.com/lambda-go-autentication/internal/lib"
+	"github.com/lambda-go-autentication/internal/config/observability"
 	"github.com/lambda-go-autentication/internal/erro"
 	"github.com/lambda-go-autentication/internal/core"
 )
@@ -59,7 +59,7 @@ func (h *AuthHandler) UnhandledMethod() (*events.APIGatewayProxyResponse, error)
 func (h *AuthHandler) Login(ctx context.Context, req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
 	childLogger.Debug().Msg("Login")
 
-	span := lib.Span(ctx, "handler.login")	
+	span := observability.Span(ctx, "handler.login")	
     defer span.End()
 
 	var credential core.Credential
@@ -82,7 +82,7 @@ func (h *AuthHandler) Login(ctx context.Context, req events.APIGatewayProxyReque
 func (h *AuthHandler) SignIn(ctx context.Context, req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
 	childLogger.Debug().Msg("SignIn")
 
-	span := lib.Span(ctx, "handler.signIn")	
+	span := observability.Span(ctx, "handler.signIn")	
     defer span.End()
 
 	var credential core.Credential
@@ -105,7 +105,7 @@ func (h *AuthHandler) SignIn(ctx context.Context, req events.APIGatewayProxyRequ
 func (h *AuthHandler) TokenValidation(ctx context.Context, req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
 	childLogger.Debug().Msg("TokenValidation")
 
-	span := lib.Span(ctx, "handler.tokenValidation")	
+	span := observability.Span(ctx, "handler.tokenValidation")	
     defer span.End()
 
 	var token core.Credential
@@ -129,7 +129,7 @@ func (h *AuthHandler) TokenValidation(ctx context.Context, req events.APIGateway
 func (h *AuthHandler) RefreshToken(ctx context.Context, req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
 	childLogger.Debug().Msg("RefreshToken")
 
-	span := lib.Span(ctx, "handler.refreshToken")	
+	span := observability.Span(ctx, "handler.refreshToken")	
     defer span.End()
 
 	var token core.Credential
@@ -153,7 +153,7 @@ func (h *AuthHandler) RefreshToken(ctx context.Context, req events.APIGatewayPro
 func (h *AuthHandler) QueryCredentialScope(ctx context.Context, req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
 	childLogger.Debug().Msg("QueryCredentialScope")
 	
-	span := lib.Span(ctx, "handler.queryCredentialScope")	
+	span := observability.Span(ctx, "handler.queryCredentialScope")	
     defer span.End()
 
 	id := req.PathParameters["id"]
@@ -177,7 +177,7 @@ func (h *AuthHandler) QueryCredentialScope(ctx context.Context, req events.APIGa
 func (h *AuthHandler) AddScope(ctx context.Context, req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
 	childLogger.Debug().Msg("AddScope")
 
-	span := lib.Span(ctx, "handler.addScope")	
+	span := observability.Span(ctx, "handler.addScope")	
     defer span.End()
 
 	var credential_scope core.CredentialScope
@@ -200,7 +200,7 @@ func (h *AuthHandler) AddScope(ctx context.Context, req events.APIGatewayProxyRe
 func (h *AuthHandler) GetInfo(ctx context.Context) (*events.APIGatewayProxyResponse, error) {
 	childLogger.Debug().Msg("GetInfo")
 	
-	span := lib.Span(ctx, "handler.getInfo")	
+	span := observability.Span(ctx, "handler.getInfo")	
     defer span.End()
 
 	handlerResponse, err := ApiHandlerResponse(http.StatusOK, h.appServer)

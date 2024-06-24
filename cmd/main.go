@@ -8,22 +8,19 @@ import(
 	"github.com/lambda-go-autentication/internal/util"
 	"github.com/lambda-go-autentication/internal/handler"
 	"github.com/lambda-go-autentication/internal/repository"
+	"github.com/lambda-go-autentication/internal/config/observability"
+	"github.com/lambda-go-autentication/internal/config/config_aws"
+	"github.com/lambda-go-autentication/internal/config/parameter_store_aws"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-lambda-go/events"
-	
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/service/ssm"
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/lambda-go-autentication/internal/lib"
 
 	"go.opentelemetry.io/contrib/propagators/aws/xray"
 	"go.opentelemetry.io/otel"
  	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda/xrayconfig"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -50,25 +47,16 @@ func main(){
 	log.Debug().Interface("appServer :",appServer).Msg("")
 
 	ctx := context.Background() // set config
-	awsConfig, err := config.LoadDefaultConfig(ctx)
+	awsConfig, err := config_aws.GetAWSConfig(ctx)
 	if err != nil {
 		panic("configuration error create new aws session " + err.Error())
 	}
-		
-	// Instrument all AWS clients.
-	otelaws.AppendMiddlewares(&awsConfig.APIOptions)
 
-	ssmsvc := ssm.NewFromConfig(awsConfig) // Get Parameter-Store
-	param, err := ssmsvc.GetParameter(ctx, &ssm.GetParameterInput{
-		Name:           aws.String(appServer.InfoApp.SSMJwtKey),
-		WithDecryption: aws.Bool(false),
-	})
+	clientSsm := parameter_store_aws.NewClientParameterStore(awsConfig)
+	jwtKey, err := clientSsm.GetParameter(ctx, appServer.InfoApp.SSMJwtKey)
 	if err != nil {
-		panic("configuration error get parameter " + err.Error())
+		panic("Error GetParameter " + err.Error())
 	}
-	jwtKey := *param.Parameter.Value
-
-	log.Debug().Str("======== > ssmJwtKwy", appServer.InfoApp.SSMJwtKey).Msg("")
 	log.Debug().Str("======== > jwtKey", jwtKey).Msg("")
 
 	// Create a repository
@@ -81,7 +69,7 @@ func main(){
 	authHandler = handler.NewAuthHandler(*authService, appServer) // Create a handler and inject the service
 
 	//----- OTEL ----//
-	tp := lib.NewTracerProvider(ctx, appServer.ConfigOTEL, appServer.InfoApp)
+	tp := observability.NewTracerProvider(ctx, appServer.ConfigOTEL, appServer.InfoApp)
 	defer func(ctx context.Context) {
 		err := tp.Shutdown(ctx)
 		if err != nil {

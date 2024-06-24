@@ -5,7 +5,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"time"
 
-	"github.com/lambda-go-autentication/internal/lib"
+	"github.com/lambda-go-autentication/internal/config/observability"
 	"github.com/lambda-go-autentication/internal/core"
 	"github.com/lambda-go-autentication/internal/erro"
 	"github.com/lambda-go-autentication/internal/repository"
@@ -33,7 +33,7 @@ func (a AuthService) Login(ctx context.Context, credential core.Credential) (*co
 	childLogger.Debug().Msg("Login")
 	childLogger.Debug().Interface("credential :",credential).Msg("")
 
-	span := lib.Span(ctx, "service.login")	
+	span := observability.Span(ctx, "service.login")	
     defer span.End()
 
 	_, err := a.authRepository.Login(ctx, credential)
@@ -75,7 +75,7 @@ func (a AuthService) Login(ctx context.Context, credential core.Credential) (*co
 func (a AuthService) SignIn(ctx context.Context, credential core.Credential) (*core.Credential, error){
 	childLogger.Debug().Msg("SignIn")
 
-	span := lib.Span(ctx, "service.signIn")	
+	span := observability.Span(ctx, "service.signIn")	
     defer span.End()
 
 	// Create a new credential
@@ -89,7 +89,7 @@ func (a AuthService) SignIn(ctx context.Context, credential core.Credential) (*c
 func (a AuthService) TokenValidation(ctx context.Context, credential core.Credential) (bool, error){
 	childLogger.Debug().Msg("TokenValidation")
 
-	span := lib.Span(ctx, "service.tokenValidation")	
+	span := observability.Span(ctx, "service.tokenValidation")	
     defer span.End()
 
 	// Check with token is signed 
@@ -115,7 +115,7 @@ func (a AuthService) TokenValidation(ctx context.Context, credential core.Creden
 func (a AuthService) AddScope(ctx context.Context, credential_scope core.CredentialScope) (*core.CredentialScope, error){
 	childLogger.Debug().Msg("AddScope")
 
-	span := lib.Span(ctx, "service.addScope")	
+	span := observability.Span(ctx, "service.addScope")	
     defer span.End()
 
 	// Save the credentials scopes
@@ -130,7 +130,7 @@ func (a AuthService) AddScope(ctx context.Context, credential_scope core.Credent
 func (a AuthService) QueryCredentialScope(ctx context.Context, credential core.Credential) (*core.CredentialScope, error){
 	childLogger.Debug().Msg("QueryCredentialScope")
 
-	span := lib.Span(ctx, "service.queryCredentialScope")	
+	span := observability.Span(ctx, "service.queryCredentialScope")	
     defer span.End()
 
 	// Query all scope linked with the credentials
@@ -145,7 +145,7 @@ func (a AuthService) QueryCredentialScope(ctx context.Context, credential core.C
 func (a AuthService) RefreshToken(ctx context.Context, credential core.Credential) (*core.Authentication, error){
 	childLogger.Debug().Msg("RefreshToken")
 
-	span := lib.Span(ctx, "service.refreshToken")	
+	span := observability.Span(ctx, "service.refreshToken")	
     defer span.End()
 
 	// Check with token is signed 
