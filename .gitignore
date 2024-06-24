@@ -17,7 +17,8 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
-.aws-lambda-rie
+.aws-lambda-rie/
+build/
 
 # Go workspace file
 go.work
