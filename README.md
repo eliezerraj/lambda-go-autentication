@@ -6,7 +6,7 @@ Lambda mock a login and return a JWT/Scope Oath using a HS256 (symetric key) The
 
 It saves the credentials and scopes in a DynamoDB table
 
-![Alt text](image.png)
+![Alt text](/assets/image.png)
 
 See: lambda-go-auth-apigw (extend example)
 

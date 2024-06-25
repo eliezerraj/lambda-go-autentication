@@ -81,12 +81,12 @@ func NewTracerProvider(ctx context.Context, configOTEL *core.ConfigOTEL, infoApp
 		),
 	)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to create OTEL trace exporter")
+		childLogger.Error().Err(err).Msg("Failed to create OTEL trace exporter")
 	}
 
 	resources, err := buildResources(ctx, infoApp)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to load OTEL resource")
+		childLogger.Error().Err(err).Msg("Failed to load OTEL resource")
 	}
 
 	tp := sdktrace.NewTracerProvider(

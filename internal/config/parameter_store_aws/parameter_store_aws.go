@@ -18,14 +18,15 @@ func NewClientParameterStore(awsConfig aws.Config) *AwsClientParameterStore {
 	}
 }
 
-func (p *AwsClientParameterStore) GetParameter(ctx context.Context, parameterName string) (string, error) {
+func (p *AwsClientParameterStore) GetParameter(ctx context.Context, parameterName string) (*string, error) {
 	result, err := p.Client.GetParameter(ctx, 
 										&ssm.GetParameterInput{
 											Name:	aws.String(parameterName),
 											WithDecryption:	aws.Bool(false),
 										})
 	if err != nil {
-		return "nil", err
+		return nil, err
 	}
-	return *result.Parameter.Value, nil
+	
+	return result.Parameter.Value, nil
 }

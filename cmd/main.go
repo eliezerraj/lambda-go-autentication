@@ -57,7 +57,7 @@ func main(){
 	if err != nil {
 		panic("Error GetParameter " + err.Error())
 	}
-	log.Debug().Str("======== > jwtKey", jwtKey).Msg("")
+	log.Debug().Str("======== > jwtKey", *jwtKey).Msg("")
 
 	// Create a repository
 	authRepository, err := repository.NewAuthRepository(appServer.InfoApp.TableName, awsConfig)
@@ -65,7 +65,7 @@ func main(){
 		panic("configuration error AuthRepository(), " + err.Error())
 	}
 	
-	authService = service.NewAuthService([]byte(jwtKey), authRepository) // Create a authorization service and inject the repository
+	authService = service.NewAuthService([]byte(*jwtKey), authRepository) // Create a authorization service and inject the repository
 	authHandler = handler.NewAuthHandler(*authService, appServer) // Create a handler and inject the service
 
 	//----- OTEL ----//
