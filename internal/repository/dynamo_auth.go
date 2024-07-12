@@ -16,6 +16,9 @@ import(
 func (r *AuthRepository) Login(ctx context.Context, user_credential core.Credential) (*core.Credential, error){
 	childLogger.Debug().Msg("Login")
 
+	span := observability.Span(ctx, "repo.Login")	
+    defer span.End()
+
 	var keyCond expression.KeyConditionBuilder
 	id := "USER-" + user_credential.User
 
@@ -60,6 +63,9 @@ func (r *AuthRepository) Login(ctx context.Context, user_credential core.Credent
 
 func (r *AuthRepository) SignIn(ctx context.Context, user_credential core.Credential) (*core.Credential, error){
 	childLogger.Debug().Msg("SignIn")
+	
+	span := observability.Span(ctx, "repo.SignIn")	
+    defer span.End()
 
 	user_credential.ID 			= "USER-" + user_credential.User
 	user_credential.SK 			= "USER-" + user_credential.User
@@ -88,6 +94,9 @@ func (r *AuthRepository) SignIn(ctx context.Context, user_credential core.Creden
 func (r *AuthRepository) AddScope(ctx context.Context, credential_scope core.CredentialScope) (*core.CredentialScope, error){
 	childLogger.Debug().Msg("AddScope")
 
+	span := observability.Span(ctx, "repo.AddScope")	
+    defer span.End()
+
 	credential_scope.ID 			= "USER-" + credential_scope.User
 	credential_scope.SK 			= "SCOPE-001"
 	credential_scope.Updated_at 	= time.Now()
@@ -114,6 +123,9 @@ func (r *AuthRepository) AddScope(ctx context.Context, credential_scope core.Cre
 
 func (r *AuthRepository) QueryCredentialScope(ctx context.Context, user_credential core.Credential) (*core.CredentialScope, error){
 	childLogger.Debug().Msg("QueryCredentialScope")
+
+	span := observability.Span(ctx, "repo.QueryCredentialScope")	
+    defer span.End()
 
 	var keyCond expression.KeyConditionBuilder
 

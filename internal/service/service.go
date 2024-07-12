@@ -47,6 +47,8 @@ func (a AuthService) Login(ctx context.Context, credential core.Credential) (*co
 		return nil, err
 	}
 
+	span_jwt := observability.Span(ctx, "service.create_jwt")	
+    
 	// Set a JWT expiration date 
 	expirationTime := time.Now().Add(720 * time.Minute)
 
@@ -65,7 +67,8 @@ func (a AuthService) Login(ctx context.Context, credential core.Credential) (*co
 	if err != nil {
 		return nil, err
 	}
-
+	defer span_jwt.End()
+	
 	auth := core.Authentication{	Token: tokenString, 
 									ExpirationTime :expirationTime}
 
