@@ -18,11 +18,11 @@ import(
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-lambda-go/events"
 
-	"go.opentelemetry.io/contrib/propagators/aws/xray"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/trace"
+	"go.opentelemetry.io/contrib/propagators/aws/xray"
  	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda/xrayconfig"
-	"go.opentelemetry.io/otel/trace"
 )
 
 var (
@@ -52,22 +52,6 @@ func main(){
 		panic("configuration error create new aws session " + err.Error())
 	}
 
-	clientSsm := parameter_store_aws.NewClientParameterStore(awsConfig)
-	jwtKey, err := clientSsm.GetParameter(ctx, appServer.InfoApp.SSMJwtKey)
-	if err != nil {
-		panic("Error GetParameter " + err.Error())
-	}
-	log.Debug().Str("======== > jwtKey", *jwtKey).Msg("")
-
-	// Create a repository
-	authRepository, err := repository.NewAuthRepository(appServer.InfoApp.TableName, awsConfig)
-	if err != nil {
-		panic("configuration error AuthRepository(), " + err.Error())
-	}
-	
-	authService = service.NewAuthService([]byte(*jwtKey), authRepository) // Create a authorization service and inject the repository
-	authHandler = handler.NewAuthHandler(*authService, appServer) // Create a handler and inject the service
-
 	//----- OTEL ----//
 	tp := observability.NewTracerProvider(ctx, appServer.ConfigOTEL, appServer.InfoApp)
 	defer func(ctx context.Context) {
@@ -79,8 +63,25 @@ func main(){
 
 	otel.SetTextMapPropagator(xray.Propagator{})
 	otel.SetTracerProvider(tp)
-
 	tracer = tp.Tracer("lambda-go-autentication-tracer")
+	//----- OTEL ----//
+
+	clientSsm := parameter_store_aws.NewClientParameterStore(*awsConfig)
+	jwtKey, err := clientSsm.GetParameter(ctx, appServer.InfoApp.SSMJwtKey)
+	if err != nil {
+		panic("Error GetParameter " + err.Error())
+	}
+	log.Debug().Str("======== > jwtKey", *jwtKey).Msg("")
+
+	// Create a repository
+	authRepository, err := repository.NewAuthRepository(appServer.InfoApp.TableName, *awsConfig)
+	if err != nil {
+		panic("configuration error AuthRepository(), " + err.Error())
+	}
+	
+	authService = service.NewAuthService([]byte(*jwtKey), authRepository) // Create a authorization service and inject the repository
+	authHandler = handler.NewAuthHandler(*authService, appServer) // Create a handler and inject the service
+
 	lambda.Start(otellambda.InstrumentHandler(lambdaHandler, xrayconfig.WithRecommendedOptions(tp)... ))
 }
 

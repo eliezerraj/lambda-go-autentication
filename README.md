@@ -32,6 +32,7 @@ See: lambda-go-auth-apigw (extend example)
       zip -jrm ../build/main.zip ../build/bootstrap
 
       aws lambda update-function-code \
+        --region us-east-2 \
         --function-name lambda-go-autentication \
         --zip-file fileb:///mnt/c/Eliezer/workspace/github.com/lambda-go-autentication/build/main.zip \
         --publish

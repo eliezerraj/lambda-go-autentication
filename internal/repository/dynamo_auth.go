@@ -11,6 +11,8 @@ import(
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+
+	"github.com/lambda-go-autentication/internal/config/observability"
 )
 
 func (r *AuthRepository) Login(ctx context.Context, user_credential core.Credential) (*core.Credential, error){
