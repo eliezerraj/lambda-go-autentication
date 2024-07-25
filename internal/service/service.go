@@ -11,6 +11,7 @@ import (
 	"github.com/lambda-go-autentication/internal/repository"
 
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/google/uuid"
 )
 
 var childLogger = log.With().Str("service", "AuthService").Logger()
@@ -52,10 +53,17 @@ func (a AuthService) Login(ctx context.Context, credential core.Credential) (*co
 	// Set a JWT expiration date 
 	expirationTime := time.Now().Add(720 * time.Minute)
 
+	newUUID := uuid.New()
+	uuidString := newUUID.String()
+
 	// Create a JWT Oauth 2.0 with all scopes and expiration date
 	jwtData := &core.JwtData{
 								Username: credential.User,
 								Scope: credential_scope.Scope,
+								ISS: "lambda-go-autentication",
+								Version: "2",
+								JwtId: uuidString,
+								TokenUse: "access",
 								RegisteredClaims: jwt.RegisteredClaims{
 									ExpiresAt: jwt.NewNumericDate(expirationTime), 	// JWT expiry time is unix milliseconds
 								},

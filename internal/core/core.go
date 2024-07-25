@@ -48,8 +48,12 @@ type CredentialScope struct {
 }
 
 type JwtData struct {
+	TokenUse	string 	`json:"token_use"`
+	ISS			string 	`json:"iss"`
+	Version		string 	`json:"version"`
+	JwtId		string 	`json:"jwt_id"`
 	Username	string 	`json:"username"`
-	Scope	  []string 	`json:"scope"`
+	Scope	  	[]string `json:"scope"`
 	jwt.RegisteredClaims
 }
 
