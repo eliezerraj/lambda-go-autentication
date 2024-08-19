@@ -36,6 +36,8 @@ type Credential struct {
 	User			string	`json:"user,omitempty"`
 	Password		string	`json:"password,omitempty"`
 	Token			string 	`json:"token,omitempty"`
+	UsagePlan		string 	`json:"usage_plan,omitempty"`
+	ApiKey			string 	`json:"apikey,omitempty"`
 	Updated_at  	time.Time 	`json:"updated_at,omitempty"`
 }
 
