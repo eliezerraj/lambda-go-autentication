@@ -68,10 +68,10 @@ Parameters:
     Default: arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
 
   Runtime:
-    Description: Runtime Environment name e.g nodejs, go1.x, python3.9
+    Description: Runtime Environment name e.g nodejs, provided.al2, python3.9
     Type: String
-    ConstraintDescription: must be a valid environment (go1.x)
-    Default: go1.x
+    ConstraintDescription: must be a valid environment provided.al2)
+    Default: provided.al2
 
 Conditions:
   IsManagedPolicyParameterOne:    !Not [!Equals [ !Ref ManagedPolicyParameterOne, "" ]]

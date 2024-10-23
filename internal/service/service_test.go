@@ -18,7 +18,7 @@ var (
 	logLevel		= zerolog.DebugLevel // InfoLevel DebugLevel
 	authService		*AuthService
 	tableName		= "user_login_2"
-	jwtKey			= "my_secret_key"
+	jwtKey			= "my-secret-key"
 )
 
 func TestSignIn(t *testing.T) {
@@ -26,6 +26,9 @@ func TestSignIn(t *testing.T) {
 
 	ctx := context.Background()
 	awsConfig, err := config.LoadDefaultConfig(ctx)
+	if err != nil {
+		t.Errorf("configuration error LoadDefaultConfig() %v ",err.Error())
+	}
 
 	credential := core.Credential{User: "user123", Password: "pass123" }
 
@@ -51,6 +54,9 @@ func TestAddScope(t *testing.T) {
 
 	ctx := context.Background()
 	awsConfig, err := config.LoadDefaultConfig(ctx)
+	if err != nil {
+		t.Errorf("configuration error LoadDefaultConfig() %v ",err.Error())
+	}
 
 	scope := []string{"info.read",
 								"a.read",
@@ -81,6 +87,9 @@ func TestQueryCredentialScope(t *testing.T) {
 
 	ctx := context.Background()
 	awsConfig, err := config.LoadDefaultConfig(ctx)
+	if err != nil {
+		t.Errorf("configuration error LoadDefaultConfig() %v ",err.Error())
+	}
 
 	credential := core.Credential{User: "user123" }
 
@@ -106,6 +115,9 @@ func TestLogin(t *testing.T) {
 
 	ctx := context.Background()
 	awsConfig, err := config.LoadDefaultConfig(ctx)
+	if err != nil {
+		t.Errorf("configuration error LoadDefaultConfig() %v ",err.Error())
+	}
 
 	credential := core.Credential{User: "user123", Password: "pass123" }
 
@@ -131,6 +143,10 @@ func TestTokenValidation(t *testing.T) {
 
 	ctx := context.Background()
 	awsConfig, err := config.LoadDefaultConfig(ctx)
+	if err != nil {
+		t.Errorf("configuration error LoadDefaultConfig() %v ",err.Error())
+	}
+
 	credential := core.Credential{User: "user123", Password: "pass123" }
 	
 	authRepository, err := repository.NewAuthRepository(tableName, awsConfig)
@@ -167,6 +183,9 @@ func TestRefreshToken(t *testing.T) {
 
 	ctx := context.Background()
 	awsConfig, err := config.LoadDefaultConfig(ctx)
+	if err != nil {
+		t.Errorf("configuration error LoadDefaultConfig() %v ",err.Error())
+	}
 	credential := core.Credential{User: "user123", Password: "pass123" }
 	
 	authRepository, err := repository.NewAuthRepository(tableName, awsConfig)
@@ -175,7 +194,7 @@ func TestRefreshToken(t *testing.T) {
 	}
 
 	authService = NewAuthService([]byte(jwtKey), authRepository)
-	res, err := authService.Login(context.TODO(),credential)
+	res, err := authService.Login(context.TODO(), credential)
 	if err != nil {
 		t.Errorf("Error -TestRefreshToken Erro %v ", err)
 	}

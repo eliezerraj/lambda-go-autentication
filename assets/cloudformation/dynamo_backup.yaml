@@ -1,0 +1,77 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Backup Plan template
+
+Parameters:
+  BackupName:
+    Type: String
+    Default: Backup-Architecture
+    Description: Name of the Backup Plan
+  TagKey:
+    Type: String
+    Default: backup
+    Description: Enter the tag KEY of the DynamoDB table
+  TagValue:
+    Type: String
+    Default: true
+    Description: Enter the tag VALUE of the DynamoDB table
+  LifecycleDeleteAfterDays:
+    Type: Number
+    Default: 120
+    Description: Number of days after creation that Backup is deleted. (Must be greater than 90 days)
+  LifecycleMoveToColdStorageAfterDays:
+    Type: Number
+    Default: 14
+    Description: Number of days to move Backuo to cold storage.
+
+Resources:
+  BackupVault:
+    Type: AWS::Backup::BackupVault
+    Properties:
+      BackupVaultName: !Join ['', [!Ref BackupName, "-BackupVault"]]
+
+  BackupPlan:
+    Type: AWS::Backup::BackupPlan
+    Properties:
+      BackupPlan:
+        BackupPlanName: !Join ['', [!Ref BackupName, "-BackupPlan"]] 
+        BackupPlanRule:
+          - RuleName: "RuleForDailyBackups"
+            TargetBackupVault: !Ref BackupVault
+            ScheduleExpression: "cron(0 5 ? * * *)"
+            StartWindowMinutes: 60
+            CompletionWindowMinutes : 120
+            Lifecycle:
+              DeleteAfterDays: !Ref LifecycleDeleteAfterDays
+              MoveToColdStorageAfterDays: !Ref LifecycleMoveToColdStorageAfterDays
+
+    DependsOn: BackupVault
+
+  BackupRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "backup.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForBackup"
+
+  TagBasedBackupSelection:
+    Type: "AWS::Backup::BackupSelection"
+    Properties:
+      BackupSelection:
+        SelectionName: "TagBasedBackupSelection"
+        IamRoleArn: !GetAtt BackupRole.Arn
+        ListOfTags:
+          - ConditionType: "STRINGEQUALS"
+            ConditionKey:
+              Ref: TagKey
+            ConditionValue:
+              Ref: TagValue
+      BackupPlanId: !Ref BackupPlan
+    DependsOn: BackupPlan      

@@ -1,0 +1,80 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Template Create DynamoDB GlobalTable
+
+Parameters:
+  Versao:
+    Type: String
+    Default: 0
+  Env:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - hml
+      - prd
+  DynamoDBTableName:
+    Type: String
+    Default: user_login_3
+  ReadCapacityUnits:
+    Type: Number
+    Default: 1
+  WriteCapacityUnits:
+    Type: Number
+    Default: 1
+  IsTimeToLive:
+    Type: String
+    AllowedValues: [ true, false ]
+    Default: true
+  IsDeletionProtectionEnabled:
+    Type: String
+    AllowedValues: [ true, false ]
+    Default: true
+  IsPointInTimeRecoveryEnabled:
+    Type: String
+    AllowedValues: [ true, false ]
+    Default: true
+  IsBackupEnabled:
+    Type: String
+    AllowedValues: [ true, false ]
+    Default: true
+  DefaultBillingMode:
+    Type: String
+    Default: PAY_PER_REQUEST
+    AllowedValues:
+      - PROVISIONED
+      - PAY_PER_REQUEST
+
+Resources:
+  DynamoDBTable:
+    Type: AWS::DynamoDB::GlobalTable
+    DeletionPolicy: Retain
+    Properties:
+      TableName: !Ref DynamoDBTableName
+      BillingMode: !Ref DefaultBillingMode
+      AttributeDefinitions:
+        - AttributeName: ID
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S       
+      KeySchema:
+        - AttributeName: ID
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      #ProvisionedThroughput:   
+        #ReadCapacityUnits:  !Ref ReadCapacityUnits
+        #WriteCapacityUnits: !Ref WriteCapacityUnits
+      TimeToLiveSpecification:
+        AttributeName: TimeToLive
+        Enabled: !Ref IsTimeToLive
+      Replicas:
+        - Region: us-east-2
+        - Region: us-east-1
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
+
+Outputs:
+  DynamoDBTable:
+    Value: !Ref DynamoDBTableName
+  DynamoDBTableARN:
+    Value: !GetAtt DynamoDBTable.Arn

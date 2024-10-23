@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Policy Dynamo
+
+Parameters:
+  CustomPolicyName:
+    Description: Policy Name (inform Table Name)
+    Type: String
+    Default: DynamoPolicy-<TABLE_NAME>
+  DynamoTableARN:
+    Description: Dynamo Table ARN (Resource Policy)
+    Type: String
+    Default: arn:aws:dynamodb:us-east-2:884069944685:table/my-architecture-table
+
+Resources:
+  CustomPolicyForDynamo:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: !Ref CustomPolicyName 
+      Description: !Ref CustomPolicyName 
+      Path: '/'
+      PolicyDocument: 
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Deny
+            Action: 
+              - 'dynamodb:Scan'
+            Resource: !Ref DynamoTableARN
+          - Effect: Allow
+            Action: 
+              - 'dynamodb:BatchGetItem'
+              - 'dynamodb:BatchWriteItem*'
+              - 'dynamodb:ConditionCheckItem'
+              - 'dynamodb:PutItem'
+              - 'dynamodb:DescribeTable'
+              - 'dynamodb:DeleteItem'
+              - 'dynamodb:GetItem'
+              - 'dynamodb:Query'
+              - 'dynamodb:UpdateItem'
+            Resource: !Ref DynamoTableARN
+
+  CustomPolicyForIndexDynamo:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: !Join ['', [!Ref CustomPolicyName, "-INDEX"]]
+      Description: !Join ['', [!Ref CustomPolicyName, "-INDEX"]]
+      Path: '/'
+      PolicyDocument: 
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Deny
+            Action: 
+              - 'dynamodb:Scan'
+            Resource:  !Join ['', [!Ref DynamoTableARN, "/index/*"]]
+          - Effect: Allow
+            Action: 
+              - 'dynamodb:GetShardIterator'
+              - 'dynamodb:Query'
+              - 'dynamodb:DescribeStream'
+              - 'dynamodb:GetRecords'
+              - 'dynamodb:ListStreams'
+            Resource: !Join ['', [!Ref DynamoTableARN, "/index/*"]]
+
+Outputs:
+  CustomPolicyForDynamo:
+    Value: !Ref CustomPolicyName

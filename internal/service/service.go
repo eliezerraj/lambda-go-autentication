@@ -185,7 +185,7 @@ func (a AuthService) RefreshToken(ctx context.Context, credential core.Credentia
 	expirationTime := time.Now().Add(60 * time.Minute)
 	claims.ExpiresAt = jwt.NewNumericDate(expirationTime)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(a.jwtKey)
+	tokenString, _ := token.SignedString(a.jwtKey)
 
 	auth := core.Authentication{	Token: tokenString, 
 									ExpirationTime :expirationTime}

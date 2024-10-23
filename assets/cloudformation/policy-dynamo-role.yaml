@@ -1,0 +1,57 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Policy Dynamo
+
+Parameters:
+  CustomPolicyName:
+    Description: Policy Name (inform Table Name)
+    Type: String
+    Default: DynamoPolicy<TABLE_NAME>
+  DynamoTableARN:
+    Description: Dynamo Table ARN (Resource Policy)
+    Type: String
+    Default: arn:aws:dynamodb:us-east-2:884069944685:table/card-tenant
+  RoleNameAssociation:
+    Description: Role Name Association (Opcional)
+    Type: String
+    Default: ""
+
+Conditions:
+  IsRoleNameAssociation: !Not [!Equals [ !Ref RoleNameAssociation, "" ]]
+
+Resources:
+  CustomPolicyForDynamo:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: !Ref CustomPolicyName 
+      Description: !Ref CustomPolicyName 
+      Path: '/'
+      PolicyDocument: 
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Deny
+            Action: 
+              - 'dynamodb:Scan'
+            Resource: !Ref DynamoTableARN
+          - Effect: Allow
+            Action: 
+              - 'dynamodb:List*'
+              - 'dynamodb:DescribeReservedCapacity*'
+              - 'dynamodb:DescribeLimits'
+              - 'dynamodb:DescribeTimeToLive'
+              - 'dynamodb:BatchGet*'
+              - 'dynamodb:DescribeStream'
+              - 'dynamodb:DescribeTable'
+              - 'dynamodb:Get*'
+              - 'dynamodb:Query'
+              - 'dynamodb:BatchWrite'
+              - 'dynamodb:CreateTable'
+              - 'dynamodb:Delete*'
+              - 'dynamodb:Update'
+              - 'dynamodb:PutItem'
+            Resource: !Ref DynamoTableARN
+      Roles:
+        - !If [ IsRoleNameAssociation, !Ref RoleNameAssociation, !Ref 'AWS::NoValue' ]
+
+Outputs:
+  CustomPolicyForDynamo:
+    Value: !Ref CustomPolicyName
