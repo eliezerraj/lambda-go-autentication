@@ -118,13 +118,15 @@ Lambda function already created
 
 ## Lambda Env Variables
 
-      ENV:        dev  
-      APP_NAME:	lambda-go-autentication
-      JWT_KEY:	   my_secret_key
-      REGION:	   us-east-2
-      SSM_JWT_KEY:	key-secret
-      TABLE_NAME:	   user_login_2
+      APP_NAME: lambda-go-autentication-NEW
       OTEL_EXPORTER_OTLP_ENDPOINT: localhost:4317
+      REGION:us-east-2
+      RSA_BUCKET_NAME_KEY:eliezerraj-908671954593-mtls-truststore
+      RSA_FILE_PATH:/
+      RSA_PRIV_FILE_KEY:private_key.pem
+      RSA_PUB_FILE_KEY:public_key.pem
+      SECRET_JWT_KEY:key-jwt-auth
+      TABLE_NAME:user_login_2
 
 ## Running locally
 
@@ -143,3 +145,30 @@ Lambda function already created
 + Test
 
       curl --location 'http://localhost:9000/2015-03-31/functions/function/invocations' --header 'Content-Type: application/json' --data '{"httpMethod":"GET","resource":"/info","pathParameters": {"id":"1"}}'
+
++ Test APIGW
+
+      {
+         "httpMethod": "GET",
+         "resource": "/info"
+      }
+
+      {
+      "httpMethod": "POST",
+      "resource": "/login",
+      "body": "{\"user\":\"admin\", \"password\":\"admin\"}"
+      }
+
+      {
+         "httpMethod": "GET",
+         "resource": "/credentialScope/{id}",
+         "pathParameters": {"id":"admin"}
+      }
+
+      {
+      "httpMethod": "POST",
+      "resource": "/tokenValidation",
+      "body": {
+         "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl91c2UiOiJhY2Nlc3MiLCJpc3MiOiJsYW1iZGEtZ28tYXV0ZW50aWNhdGlvbiIsInZlcnNpb24iOiIyIiwiand0X2lkIjoiMGRiNTVjY2QtM2RhZS00ZjM5LWExZjktMDFmMWVjY2JjNTcwIiwidXNlcm5hbWUiOiJhZG1pbiIsInNjb3BlIjpbImFkbWluIl0sImV4cCI6MTczMzU3MTk4N30.ni7edcbTSVZuWyzt9IGISP3AFOJwp58zFxn1OD4ZL34"
+      }
+      }
