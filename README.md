@@ -154,9 +154,9 @@ Lambda function already created
       }
 
       {
-      "httpMethod": "POST",
-      "resource": "/login",
-      "body": "{\"user\":\"admin\", \"password\":\"admin\"}"
+         "httpMethod": "POST",
+         "resource": "/login",
+         "body": "{\"user\":\"admin\", \"password\":\"admin\"}"
       }
 
       {
@@ -168,7 +168,17 @@ Lambda function already created
       {
       "httpMethod": "POST",
       "resource": "/tokenValidation",
-      "body": {
-         "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl91c2UiOiJhY2Nlc3MiLCJpc3MiOiJsYW1iZGEtZ28tYXV0ZW50aWNhdGlvbiIsInZlcnNpb24iOiIyIiwiand0X2lkIjoiMGRiNTVjY2QtM2RhZS00ZjM5LWExZjktMDFmMWVjY2JjNTcwIiwidXNlcm5hbWUiOiJhZG1pbiIsInNjb3BlIjpbImFkbWluIl0sImV4cCI6MTczMzU3MTk4N30.ni7edcbTSVZuWyzt9IGISP3AFOJwp58zFxn1OD4ZL34"
+      "body": "{\"token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl91c2UiOiJhY2Nlc3MiLCJpc3MiOiJsYW1iZGEtZ28tYXV0ZW50aWNhdGlvbiIsInZlcnNpb24iOiIyIiwiand0X2lkIjoiYWUzZDY2NjEtMGRmOC00N2JlLWJkNWYtZDEyZjhiODE2YWFhIiwidXNlcm5hbWUiOiJhZG1pbiIsInNjb3BlIjpbImFkbWluIl0sImV4cCI6MTczMzgxNTc4OH0.72vCsNDSdqO4iOnrKzcYd8lhceOBE0eDXSLeLsmgb1Q\"}"
       }
+
+      {
+         "httpMethod": "POST",
+         "resource": "/refreshTokenRSA",
+         "body": "{\"token\":\"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl91c2UiOiJhY2Nlc3MtcnNhIiwiaXNzIjoibGFtYmRhLWdvLWF1dGVudGljYXRpb24iLCJ2ZXJzaW9uIjoiMiIsImp3dF9pZCI6IjkxNTNkNGU3LTljZWItNDRjMC1iZGRjLTM3ZWUyMzM0NzgzOCIsInVzZXJuYW1lIjoiYWRtaW4iLCJzY29wZSI6WyJhZG1pbiJdLCJleHAiOjE3MzM4MTgxNzF9.X_vKruOsgZZEBHJsz5OEzSIPDtpR6xW_824zJDWYsiZ8FMKHsGwWpsbYbqwJgOCnPlqX2_cDbNg89BCOXBiaP8oE_H97Z-PMAQhnX8NPel4rR893NvFkBbQwRI-IHu4oU7Jw-pQd7gbjsaz_b-HYPdsBH1xXe2GZpRcAOVSYJOAx6S47QK2F0Vy6xExKQcFEEvLJdf4uXLL5XzMlIrguC8SM6ObsDWiWr8iJa5bh9fYN4GjZ_n2ssjYrFnX-C3Q9ewCdquBZcSKoDYkR0Hjo98KHJpxylLByW9osiXbFdP4jhGj1eMvTYK6POg5Qfnz1LpGO3g30q7vxBN9fhn4NDQ\"}"
+      }
+
+      {
+         "httpMethod": "POST",
+         "resource": "/tokenValidationRSA",
+         "body": "{\"token\":\"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl91c2UiOiJhY2Nlc3MtcnNhIiwiaXNzIjoibGFtYmRhLWdvLWF1dGVudGljYXRpb24iLCJ2ZXJzaW9uIjoiMiIsImp3dF9pZCI6IjRlMjFmYmJjLWNhOGYtNDczMi05YjJlLTE0Nzc3NTIwMDViYyIsInVzZXJuYW1lIjoiYWRtaW4iLCJzY29wZSI6WyJhZG1pbiJdLCJleHAiOjE3MzM4MTU4MTl9.AZXgxpidbeTRoLLFQCIZW16izopIWsUuO7EYu4V4JZ_byqHKftbfrockSh820u4DOwmnRufCjoe_t7akB9RPUyrXYBCunQipQy9TQhyvBDRX0qmv4krM7C_zXCyh8gdeaJG67p1bOctItJp6KCfANqd_TgITwB86luuzHHqpv5FMfg5AIQS15jXzSClb6D3_0hurooWT9WR2nIY1eByYl-QrcRvgem_RyGmSwja_ZiZd31j0MCoueRZnUltAhXsNKgtqZGq2uaU_i0GDlDme707kIk8QJLPZqOSmbYRnBFA5bWtIXQPtGRkMZlNknxS1yKN92pGsZlj4ORJFuiZ1Bg\"}"
       }
